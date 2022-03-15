@@ -8,9 +8,10 @@ class Array
 public:
     // Конструкоторы
     Array<T>() : arr(nullptr), size(0), capacity(0) {}
-    Array<T>(size_t size_) : size(size_), capacity(size_) { arr = new T(size_); }
+    Array<T>(size_t size_) : size(size_), capacity(size_), arr(new T[size_]){ }
 
     // Функции
+    size_t sizeArray() { return this->size; }
     void pushBack(T elem);
     T& operator [](size_t index);
 
@@ -49,7 +50,7 @@ Array<T>::Array(const Array<T>& srcArr)
 {
     this->size = srcArr.size;
     this->capacity = srcArr.capacity;
-    this->arr = new T(this->capacity);
+    this->arr = new T[this->capacity];
 
     for (size_t i = 0; i < size; i++)
     {
@@ -105,7 +106,7 @@ T& Array<T>::operator[](size_t index)
 template<typename T>
 void Array<T>::extendArray()
 {
-    T* newArr = new T(capacity = capacity ? capacity *= 2 : 1);
+    T* newArr = new T[capacity = capacity ? capacity *= 2 : 1];
     if (arr)
         delete arr;
     arr = newArr;

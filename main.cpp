@@ -21,6 +21,29 @@ using namespace std;
 
 int main()
 {
+    int count, val;
+    cin >> count;
+    Array<int> A = Array<int>(count);
+    for (size_t i = 0; i < A.sizeArray(); i++)
+    {
+        cin >> val;
+        A[i] = val;
+    }
+
+
+    for (size_t i = 0; i < A.sizeArray(); i++)
+    {
+        cout << A[i];
+    }
+
+    //cin >> count;
+   /* Array<int> B = Array<int>(count);
+    for (size_t i = 0; i < B.sizeArray(); i++)
+    {
+        cin >> val;
+        B[i] = val;
+
+    }*/
     //b = f();
     //int count, val;
 
