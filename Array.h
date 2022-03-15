@@ -13,6 +13,8 @@ public:
     // Функции
     size_t sizeArray() { return this->size; }
     void pushBack(T elem);
+    void findPositionInterval(const T& elem, size_t& left, size_t& right);
+    size_t findPosition(const T& elem);
     T& operator [](size_t index);
 
     // Деструктор
@@ -94,6 +96,49 @@ void Array<T>::pushBack(T elem)
     if (size == capacity)
         extendArray();
     arr[size++] = elem;
+}
+
+template<typename T>
+void Array<T>::findPositionInterval(const T& elem, size_t& left, size_t& right)
+{
+    left = 0; 
+    right = size - 1;
+    if (arr[left] >= elem)
+    {
+        left = right = 0;
+        return;
+    }
+
+    size_t i = 1;
+    while (i < size && arr[i] <= elem)
+    {
+        left = i;
+        i *= 2;
+        right = i < size ? i : size - 1;
+    }
+}
+
+template<typename T>
+size_t Array<T>::findPosition(const T& elem)
+{
+    size_t left, right;
+    findPositionInterval(elem, left, right);
+    if (left == 0 && right == 0)
+        return 0;
+
+    while (left < right)
+    {
+        size_t mid = (left + right) / 2;
+        if (arr[mid] < elem)
+            left = mid + 1;
+        else
+            right = mid;
+    }
+
+    if (left > 0 && arr[left] != elem && abs(arr[left - 1] - elem) <= abs(arr[left] - elem))
+        return left - 1;
+    else
+        return left;
 }
 
 template<typename T>
