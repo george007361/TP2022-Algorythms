@@ -66,9 +66,9 @@ int Queue::popFront()
 	if (size_)
 	{
 		elem = buffer_[first_];
-		++first_;
+		first_ = (first_ + 1) % capacity_;
 		--size_;
-		if (size_ == capacity_)
+		if (size_ >= 2 * capacity_)
 		{
 			reduce();
 		}
@@ -78,10 +78,10 @@ int Queue::popFront()
 
 void Queue::expand()
 {
-	size_t  newCapacity = capacity_ ? capacity_ *= 2 : 1;
+	size_t  newCapacity = capacity_ ? capacity_ * 2 : 1;
 	int* newBuffer = new int[newCapacity];
 
-	for (size_t i = 0; i < capacity_; ++i)
+	for (size_t i = 0; i < size_; ++i)
 	{
 		newBuffer[i] = buffer_[(first_ + i) % capacity_];
 	}
@@ -96,10 +96,10 @@ void Queue::expand()
 
 void Queue::reduce()
 {
-	size_t  newCapacity = capacity_ ? capacity_ /= 2 : 1;
+	size_t  newCapacity = capacity_ ? capacity_ / 2 : 1;
 	int* newBuffer = new int[newCapacity];
 
-	for (size_t i = 0; i < capacity_; ++i)
+	for (size_t i = 0; i < size_; ++i)
 	{
 		newBuffer[i] = buffer_[(first_ + i) % capacity_];
 	}
@@ -121,7 +121,7 @@ int main()
 	bool result = true;
 	auto que = Queue();
 
-	for (int i = 0; i < countOfCommands; ++i)
+	for (int i = 0; result && i < countOfCommands; ++i)
 	{
 		cin >> a;
 		int b;
@@ -133,7 +133,10 @@ int main()
 			break;
 		case POPFRONT:
 		{
-			result = que.popFront() == b ? true : false;
+			if (b != que.popFront())
+			{
+				result = false;
+			}
 
 			break;
 		}
