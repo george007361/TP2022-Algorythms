@@ -13,8 +13,9 @@ public:
 	~MinHeap() = default;
 
 	T exctractMin();
-	T peekMin() const { return arr_[0]; };
+	T peekMin() { return arr_[0]; };
 	void insertElement(T elem);
+	void replaceMin(const T elem) { arr_[0] = elem;  heapifyMin(0); }
 
 private:
 	int defComparer(T& a, T& b) { return a - b; }
@@ -22,7 +23,7 @@ private:
 	void swap(size_t indexA, size_t indexB);
 	void heapifyMin(size_t index);
 
-private:
+public:
 	Array<T> arr_;
 	int (*pcmp_)(T&, T&);
 };

@@ -142,6 +142,7 @@
     <ClCompile Include="Array.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinHeap.cpp" />
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Array.h" />

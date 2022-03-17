@@ -13,10 +13,9 @@
 //Формат выходных данных : Итоговый отсортированный массив.
 
 #include <iostream>
-
+#include <cassert>
 #include "Array.h"
 #include "MinHeap.h"
-
 using namespace std;
 
 struct MinHeapElement
@@ -56,10 +55,12 @@ Array<int> mergeArrays(Array<Array<int>>& arrays)
 
 	for (size_t i = 0; i < totalCount; i++) // перебираем все элементы
 	{
-		auto minElem = heap.exctractMin(); // Достаём меньший элемент из кучи, т.е. самый маленький из соединяемых массивов.
+		auto minElem = heap.peekMin(); // Достаём меньший элемент из кучи, т.е. самый маленький из соединяемых массивов.
 		merged[i] = minElem.getElem(); // переносим в выходной массив
 		if (minElem.next()) // если в массиве, из которого достали элемент, еще есть элементы, вставляем следущий в кучу
-			heap.insertElement(minElem);
+			heap.replaceMin(minElem);
+		else
+			heap.exctractMin();
 	}
 
 	return merged;
