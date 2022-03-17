@@ -21,67 +21,90 @@ using namespace std;
 
 struct MinHeapElement
 {
-    Array<int>* arr;
-    size_t index;
-    MinHeapElement() : arr(nullptr), index(-1) { cout << "ctor elem: " << arr << endl; }
-    MinHeapElement(Array<int>* arr, size_t index = 0) : arr(arr), index(index) { /*assert(arr != null);*/ }
-    //MinHeapElement(const MinHeapElement&) = default;
-    bool next();
+public:
+	Array<int>* pArr; // указатель на массив
+	size_t index; // текущий "первый" элемент, смещение
+public:
+	MinHeapElement() : pArr(nullptr), index(-1) {}
+	MinHeapElement(Array<int>* arr, size_t index = 0) : pArr(arr), index(index) {}
+
+	bool next(); // перейти к следущему элементу 
+	int getElem(); // достать текущий элемент
 };
 
 int comrareElements(MinHeapElement& a, MinHeapElement& b)
 {
-    if ((*a.arr)[a.index] == (*b.arr)[b.index])
-        return 0;
-    return (*a.arr)[a.index] > (*b.arr)[b.index] ? 1 : -1;
+	if ((*a.pArr)[a.index] == (*b.pArr)[b.index])
+		return 0;
+	return (*a.pArr)[a.index] > (*b.pArr)[b.index] ? 1 : -1;
 }
 
 Array<int> mergeArrays(Array<Array<int>>& arrays)
 {
-    size_t totalCount = 0;
-    auto heapArray = Array<MinHeapElement>();
+	size_t totalCount = 0; // сумма всех элементов
+	auto heapArray = Array<MinHeapElement>(); //  массив для создания кучи, размер соответствует количеству объединяемых массивов, содержит первые элементы соединяемых массивов.
 
-    for (size_t i = 0; i < arrays.getSize(); i++)
-    {
-        totalCount += arrays[i].getSize();
-        heapArray.pushBack(MinHeapElement(&arrays[i]));
-    }
+	for (size_t i = 0; i < arrays.getSize(); i++)
+	{
+		totalCount += arrays[i].getSize();
+		heapArray.pushBack(MinHeapElement(&arrays[i]));
+	}
 
-    MinHeap<MinHeapElement> heap = MinHeap<MinHeapElement>(heapArray, comrareElements);
-    auto merged = Array<int>(totalCount);
+	auto heap = MinHeap<MinHeapElement>(heapArray, comrareElements); // куча, в корне - самый маленький элемент
 
-    for (size_t i = 0; i < totalCount; i++)
-    {
-        auto root = heap.peekMin();
-        merged[i] = root
-    }
+	auto merged = Array<int>(totalCount); // выходной массив
 
-    return Array<int>();
+	for (size_t i = 0; i < totalCount; i++) // перебираем все элементы
+	{
+		auto minElem = heap.exctractMin(); // Достаём меньший элемент из кучи, т.е. самый маленький из соединяемых массивов.
+		merged[i] = minElem.getElem(); // переносим в выходной массив
+		if (minElem.next()) // если в массиве, из которого достали элемент, еще есть элементы, вставляем следущий в кучу
+			heap.insertElement(minElem);
+	}
+
+	return merged;
 }
 
 int main()
 {
+	int countOfArrays = 3;
+	cin >> countOfArrays;
 
-    int countOfArrays = 3;
-    cin >> countOfArrays;
-    Array<Array<int>> arrays(countOfArrays);
-    for (size_t i = 0; i < arrays.getSize(); i++)
-    {
-        int sizeOfiArray;
-        cin >> sizeOfiArray;
-        arrays[i].reallocArray(sizeOfiArray);
-        for (size_t j = 0; j < arrays[i].getSize(); j++)
-        {
-            cin >> (arrays[i])[j];
-        }
-    }
+	Array<Array<int>> arrays(countOfArrays);
+	
+	for (size_t i = 0; i < arrays.getSize(); i++)
+	{
+		int sizeOfiArray;
+		cin >> sizeOfiArray;
+	
+		arrays[i].reallocArray(sizeOfiArray);
+		
+		for (size_t j = 0; j < arrays[i].getSize(); j++)
+		{
+			cin >> (arrays[i])[j];
+		}
+	}
 
-    mergeArrays(arrays);
-    return EXIT_SUCCESS;
+	auto merged = mergeArrays(arrays);
+	
+	for (size_t i = 0; i < merged.getSize(); i++)
+	{
+		cout << merged[i] << " ";
+	}
+	cout << endl;
+
+	return EXIT_SUCCESS;
 }
 
 bool MinHeapElement::next()
 {
-    ++index; 
-    return index < arr->getSize() ? true : false;
+	assert(pArr != nullptr);
+	++index;
+	return index < pArr->getSize() ? true : false;
+}
+
+int MinHeapElement::getElem()
+{
+	assert(pArr != nullptr);
+	return (*pArr)[index];
 }

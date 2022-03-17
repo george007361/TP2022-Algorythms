@@ -1,26 +1,15 @@
 #pragma once
 
 #include <cassert>
-#include <iostream>
-using namespace std;
 
 template<typename T>
 class Array
 {
 public:
     // Конструкоторы
-    Array<T>() : arr(nullptr), size(0), capacity(0) { cout << "ctor: " << arr << endl; }
-    Array<T>(size_t size_) : size(size_), capacity(size_), arr(new T[size_]) { cout << "ctor: " << arr << endl; }
+    Array<T>() : arr_(nullptr), size_(0), capacity_(0) {}
+    Array<T>(const size_t size) : size_(size), capacity_(size), arr_(new T[size]) {}
     
-    // Функции
-    T getLast() const { return arr[size - 1]; }
-    void deleteLast() { --size; }
-    size_t getSize() const { return this->size; }
-    bool isEmpty() const { return this->size > 0 ? true : false; }
-    void pushBack(const T& elem);
-    void reallocArray(const size_t newSize);
-    T& operator [](size_t index);
-
     // Деструктор
     ~Array();
 
@@ -31,14 +20,25 @@ public:
     //Копирование
     Array(const Array& srcArr);
     Array<T>& operator = (const Array& srcArr);
+    
+    // Операторы
+    T& operator [](const size_t index);
+
+    // Функции
+    bool isEmpty() const { return this->size_ > 0 ? false : true; }
+    T getLast() const { return arr_[size_ - 1]; }
+    size_t getSize() const { return this->size_; }
+    void pushBack(const T& elem);
+    void deleteLast() { --size_; }
+    void reallocArray(const size_t newSize);
 
 private:
     void extendArray();
 
 private:
-    T* arr;
-    size_t size;
-    size_t capacity;
+    T* arr_;
+    size_t size_;
+    size_t capacity_;
 };
 
 
@@ -46,38 +46,38 @@ private:
 template<typename T>
 Array<T>::~Array()
 {
-    if (arr)
-        delete[] arr;
-    arr = nullptr;
-    size = capacity = 0;
+    if (arr_)
+        delete[] arr_;
+    arr_ = nullptr;
+    size_ = capacity_ = 0;
 
-    cout << "dtor: " << arr << endl;
+    //cout << "dtor: " << arr_ << endl;
 }
 
 // Копирование
 template<typename T>
 Array<T>::Array(const Array& srcArr)
 {
-    this->size = srcArr.size;
-    this->capacity = srcArr.capacity;
-    this->arr = new T[this->capacity];
+    this->size_ = srcArr.size_;
+    this->capacity_ = srcArr.capacity_;
+    this->arr_ = new T[this->capacity_];
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size_; i++)
     {
-        this->arr[i] = srcArr.arr[i];
+        this->arr_[i] = srcArr.arr_[i];
     }
 }
 
 template<typename T>
 Array<T>& Array<T>::operator=(const Array& srcArr)
 {
-    this->size = srcArr.size;
-    this->capacity = srcArr.capacity;
-    this->arr = new T[this->capacity];
+    this->size_ = srcArr.size_;
+    this->capacity_ = srcArr.capacity_;
+    this->arr_ = new T[this->capacity_];
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size_; i++)
     {
-        this->arr[i] = srcArr.arr[i];
+        this->arr_[i] = srcArr.arr_[i];
     }
     return *this;
 }
@@ -91,11 +91,11 @@ Array<T>& Array<T>::operator=(Array&& srcArr)
 
     ~Array();
 
-    this->size = srcArr.size;
-    this->arr = srcArr.arr;
-    this->capacity = srcArr.capacity;
+    this->size_ = srcArr.size_;
+    this->arr_ = srcArr.arr_;
+    this->capacity_ = srcArr.capacity_;
 
-    srcArr.size = srcArr.capacity = 0;
+    srcArr.size_ = srcArr.capacity_ = 0;
 
     return *this;
 }
@@ -103,48 +103,48 @@ Array<T>& Array<T>::operator=(Array&& srcArr)
 template<typename T>
 Array<T>::Array(Array<T>&& srcArr)
 {
-    this->arr = srcArr.arr;
-    this->size = srcArr.size;
-    this->capacity = srcArr.capacity;
+    this->arr_ = srcArr.arr_;
+    this->size_ = srcArr.size_;
+    this->capacity_ = srcArr.capacity_;
 
-    srcArr.arr = nullptr;
-    srcArr.capacity = srcArr.size = 0;
+    srcArr.arr_ = nullptr;
+    srcArr.capacity_ = srcArr.size_ = 0;
 }
 
 // Функции
 template<typename T>
 void Array<T>::pushBack(const T& elem)
 {
-    if (size == capacity)
+    if (size_ == capacity_)
         extendArray();
-    arr[size++] = elem;
+    arr_[size_++] = elem;
 }
 
 template<typename T>
-T& Array<T>::operator[](size_t index)
+T& Array<T>::operator[](const size_t index)
 {
-    assert(index >= 0 && index < size);
-    return arr[index];
+    assert(index >= 0 && index < size_);
+    return arr_[index];
 }
 
 template<typename T>
 void Array<T>::extendArray()
 {
-    T* newArr = new T[capacity = capacity ? capacity *= 2 : 1];
-    for (size_t i = 0; i < size; i++)
+    T* newArr = new T[capacity_ = capacity_ ? capacity_ *= 2 : 1];
+    for (size_t i = 0; i < size_; i++)
     {
-        newArr[i] = arr[i];
+        newArr[i] = arr_[i];
     }
-    if (arr)
-        delete arr;
-    arr = newArr;
+    if (arr_)
+        delete arr_;
+    arr_ = newArr;
 }
 
 template<typename T>
 void Array<T>::reallocArray(const size_t newSize)
 {
-    if (arr)
-        delete[] arr;
-    arr = new T[newSize];
-    capacity = size = newSize;
+    if (arr_)
+        delete[] arr_;
+    arr_ = new T[newSize];
+    capacity_ = size_ = newSize;
 }

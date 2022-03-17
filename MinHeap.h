@@ -1,52 +1,76 @@
 #pragma once
 
 #include "Array.h"
+#include <cassert>
 
 template<typename T>
 class MinHeap
 {
 public:
-	MinHeap() = default;
-	explicit MinHeap(const Array<T>& arr) : arr(arr) { buildMinHeap(); }
-	explicit MinHeap(const Array<T>& arr, int (*pcmp)(T&, T&) = defComparer) : arr(arr), pcmp(pcmp) { buildMinHeap(); }
-	//explicit MinHeap(const size_t arr_size) : arr(Array<T>(arr_size)) {}
+	MinHeap() = delete;
+	explicit MinHeap(const Array<T>& arr);
+	explicit MinHeap(const Array<T>& arr, int (*pcmp)(T&, T&));
 	~MinHeap() = default;
+
 	T exctractMin();
-	T peekMin() const { return arr[0]; };
+	T peekMin() const { return arr_[0]; };
+	void insertElement(T elem);
+
 private:
-	Array<T> arr;
-	int (*pcmp)(T&, T&);
 	int defComparer(T& a, T& b) { return a - b; }
 	void buildMinHeap();
 	void swap(size_t indexA, size_t indexB);
 	void heapifyMin(size_t index);
+
+private:
+	Array<T> arr_;
+	int (*pcmp_)(T&, T&);
 };
 
+
+// Interface
 template<typename T>
 T MinHeap<T>::exctractMin()
-
 {
-	assert(!arr.isEmpty());
+	assert(!arr_.isEmpty());
 
-	// Запоминаем значение корня.
-	T result = arr[0];
+	T result = arr_[0];
 
-	// Переносим последний элемент в корень.
-	arr[0] = arr.getLast();
-	arr.deleteLast();
+	arr_[0] = arr_.getLast();
+	arr_.deleteLast();
 	
-	// Вызываем SiftDown для корня.
-	if (!arr.isEmpty()) {
-		siftDown(0);
+	if (!arr_.isEmpty()) {
+		heapifyMin(0);
 	}
 
 	return result;
 }
 
 template<typename T>
+void MinHeap<T>::insertElement(T elem)
+{
+	arr_.pushBack(elem);
+	heapifyMin(arr_.getSize() - 1);
+}
+
+// Heap
+template<typename T>
+MinHeap<T>::MinHeap(const Array<T>& arr) : arr_(arr)
+{
+	pcmp_ = defComparer;
+}
+
+template<typename T>
+MinHeap<T>::MinHeap(const Array<T>& arr, int(*pcmp)(T&, T&)) : arr_(arr), pcmp_(pcmp)
+{
+	assert(pcmp != nullptr);
+	 buildMinHeap(); 
+}
+
+template<typename T>
 void MinHeap<T>::buildMinHeap()
 {
-	for (int i = arr.getSize() / 2 - 1; i >= 0; --i) {
+	for (int i = arr_.getSize() / 2 - 1; i >= 0; --i) {
 		heapifyMin(i);
 	}
 }
@@ -54,9 +78,10 @@ void MinHeap<T>::buildMinHeap()
 template<typename T>
 void MinHeap<T>::swap(size_t indexA, size_t indexB)
 {
-	T tmp = arr[indexA];
-	arr[indexA] = arr[indexB];
-	arr[indexB] = tmp;
+	assert(!arr_.isEmpty());
+	T tmp = arr_[indexA];
+	arr_[indexA] = arr_[indexB];
+	arr_[indexB] = tmp;
 }
 
 template<typename T>
@@ -68,37 +93,19 @@ void MinHeap<T>::heapifyMin(size_t index)
 		size_t rightIndex = (index * 2) + 2;
 		size_t smallestIndex = index;
 
-		if (leftIndex < arr.getSize() && pcmp(arr[smallestIndex], arr[leftIndex]) > 0) {
+		if (leftIndex < arr_.getSize() && pcmp_(arr_[leftIndex], arr_[index]) < 0) {
 			smallestIndex = leftIndex;
 		}
 
-		if (rightIndex < arr.getSize() && pcmp(arr[smallestIndex], arr[rightIndex]) > 0) {
+		if (rightIndex < arr_.getSize() && pcmp_(arr_[rightIndex], arr_[smallestIndex]) < 0) {
 			smallestIndex = rightIndex;
 		}
 
 		if (smallestIndex == index) {
 			break;
-		}
+		}	
 		swap(index, smallestIndex);
+		index = smallestIndex;
+		
 	}
-
-
-
-	/*size_t leftIndex = (index * 2) + 1;
-	size_t rightIndex = (index * 2) + 2;
-	size_t smallestIndex = index;
-
-	if (leftIndex < arr.getSize() && arr[smallestIndex] > arr[leftIndex]) {
-		smallestIndex = leftIndex;
-	}
-
-	if (rightIndex < arr.getSize() && arr[smallestIndex] > arr[rightIndex]) {
-		smallestIndex = rightIndex;
-	}
-
-	if (smallestIndex != index) {
-		swap(index, smallestIndex);
-		heapifyMin(index);
-	}*/
-
 }
