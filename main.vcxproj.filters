@@ -24,18 +24,12 @@
     <ClCompile Include="MinHeap.cpp">
       <Filter>Файлы ресурсов</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Array.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="MinHeap.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="main.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

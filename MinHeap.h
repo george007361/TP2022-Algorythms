@@ -7,31 +7,43 @@ template<typename T>
 class MinHeap
 {
 public:
+	// ������������
 	MinHeap() = delete;
-	explicit MinHeap(const Array<T>& arr);
-	explicit MinHeap(const Array<T>& arr, int (*pcmp)(T&, T&));
+	explicit MinHeap(const Array<T>& arr) : arr_(arr), pcmp_(defComparer) {};
+	explicit MinHeap(const Array<T>& arr, int (*pcmp)(const T&, const T&));
+
+	// ����������
 	~MinHeap() = default;
 
-	T exctractMin();
-	T peekMin() { return arr_[0]; };
-	void insertElement(T elem);
-	void replaceMin(const T elem) { arr_[0] = elem;  heapifyMin(0); }
+	// �����������
+	MinHeap(const MinHeap<T>& srcHeap) = delete;
+	MinHeap<T>& operator = (const MinHeap<T>& srcHeap) = delete;
+
+	// �������
+	MinHeap(MinHeap<T>&& srcHeap);
+	MinHeap<T>& operator = (MinHeap<T>&& srcHeap);
+
+	// �������
+	T& exctractMin();
+	const T& peekMin() { return arr_[0]; }
+	void insertElement(const T& elem);
+	void replaceMin(const T& elem) { arr_[0] = elem;  heapifyMin(0); }
 
 private:
-	int defComparer(T& a, T& b) { return a - b; }
+	static int defComparer(const T& a, const T& b) { return a - b; }
 	void buildMinHeap();
-	void swap(size_t indexA, size_t indexB);
-	void heapifyMin(size_t index);
+	void swap(const size_t indexA, const size_t indexB);
+	void heapifyMin(const size_t index);
 
-public:
+private:
 	Array<T> arr_;
-	int (*pcmp_)(T&, T&);
+	int (*pcmp_)(const T&, const T&);
 };
 
 
-// Interface
+// �������
 template<typename T>
-T MinHeap<T>::exctractMin()
+T& MinHeap<T>::exctractMin()
 {
 	assert(!arr_.isEmpty());
 
@@ -39,7 +51,7 @@ T MinHeap<T>::exctractMin()
 
 	arr_[0] = arr_.getLast();
 	arr_.deleteLast();
-	
+
 	if (!arr_.isEmpty()) {
 		heapifyMin(0);
 	}
@@ -48,24 +60,10 @@ T MinHeap<T>::exctractMin()
 }
 
 template<typename T>
-void MinHeap<T>::insertElement(T elem)
+void MinHeap<T>::insertElement(const T& elem)
 {
 	arr_.pushBack(elem);
 	heapifyMin(arr_.getSize() - 1);
-}
-
-// Heap
-template<typename T>
-MinHeap<T>::MinHeap(const Array<T>& arr) : arr_(arr)
-{
-	pcmp_ = defComparer;
-}
-
-template<typename T>
-MinHeap<T>::MinHeap(const Array<T>& arr, int(*pcmp)(T&, T&)) : arr_(arr), pcmp_(pcmp)
-{
-	assert(pcmp != nullptr);
-	 buildMinHeap(); 
 }
 
 template<typename T>
@@ -86,8 +84,9 @@ void MinHeap<T>::swap(size_t indexA, size_t indexB)
 }
 
 template<typename T>
-void MinHeap<T>::heapifyMin(size_t index)
+void MinHeap<T>::heapifyMin(const size_t parentIndex)
 {
+	size_t index = parentIndex;
 	while (true)
 	{
 		size_t leftIndex = (index * 2) + 1;
@@ -104,9 +103,44 @@ void MinHeap<T>::heapifyMin(size_t index)
 
 		if (smallestIndex == index) {
 			break;
-		}	
+		}
 		swap(index, smallestIndex);
 		index = smallestIndex;
-		
 	}
+}
+
+// �����������
+template<typename T>
+MinHeap<T>::MinHeap(const Array<T>& arr, int(*pcmp)(const T&, const T&)) : arr_(arr), pcmp_(pcmp)
+{
+	assert(pcmp != nullptr);
+	buildMinHeap();
+}
+
+// �������
+template<typename T>
+MinHeap<T>::MinHeap(MinHeap<T>&& srcHeap)
+{
+	arr_ = srcHeap.arr_;
+	pcmp_ = srcHeap.pcmp_;
+
+	srcHeap.~MinHeap();
+}
+
+template<typename T>
+MinHeap<T>& MinHeap<T>::operator = (MinHeap<T>&& srcHeap)
+{
+	if (&srcHeap == this)
+	{
+		return *this;
+	}
+
+	~MinHeap();
+
+	arr_ = srcHeap.arr_;
+	pcmp_ = srcHeap.pcmp_;
+
+	srcHeap.~MinHeap();
+
+	return *this;
 }
