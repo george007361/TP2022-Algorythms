@@ -18,104 +18,92 @@ template<typename T>
 class Array
 {
 public:
+	// Функции
+	bool isEmpty() const { return size_ > 0 ? false : true; }
+	size_t getSize() const { return size_; }
+	const T& getLast() const;
+	void pushBack(const T& elem);
+	void deleteLast();
+	void reallocArray(const size_t newSize);
+
 	// Конструкоторы
 	Array<T>() : arr_(nullptr), size_(0), capacity_(0) {}
-	Array<T>(const size_t size) : size_(size), capacity_(size), arr_(size ? new T[size] : nullptr) {}
-
-	// Деструктор
-	~Array();
+	Array<T>(const size_t size) : size_(size), capacity_(size), arr_(new T[size]) { }
 
 	//Перенос
-	Array(Array&& srcArr) noexcept;
+	Array<T>(Array<T>&& srcArr);
 	Array<T>& operator = (Array<T>&& srcArr);
 
 	//Копирование
-	Array(const Array& srcArr);
-	Array<T>& operator = (const Array& srcArr);
+	Array<T>(const Array<T>& srcArr);
+	Array<T>& operator = (const Array<T>& srcArr) = delete;
+
+	// Деструктор
+	~Array<T>();
 
 	// Операторы
 	T& operator [](const size_t index);
 
-	// Функции
-	bool isEmpty() const { return this->size_ > 0 ? false : true; }
-	T getLast() const { return arr_[size_ - 1]; }
-	size_t getSize() const { return this->size_; }
-	void pushBack(const T& elem);
-	void deleteLast() { --size_; }
-	void reallocArray(const size_t newSize);
-
 private:
 	void extendArray();
-
+	bool checkArrayOrder() const;
 private:
 	T* arr_;
 	size_t size_;
 	size_t capacity_;
 };
 
-
 // Деструктор
 template<typename T>
 Array<T>::~Array()
 {
 	if (arr_)
+	{
 		delete[] arr_;
+	}
 	arr_ = nullptr;
 	size_ = capacity_ = 0;
 }
 
 // Копирование
 template<typename T>
-Array<T>::Array(const Array& srcArr)
+Array<T>::Array(const Array<T>& srcArr)
 {
-	this->size_ = srcArr.size_;
-	this->capacity_ = srcArr.capacity_;
-	this->arr_ = new T[this->capacity_];
+	size_ = srcArr.size_;
+	capacity_ = srcArr.capacity_;
+	arr_ = new T[capacity_];
 
 	for (size_t i = 0; i < size_; i++)
 	{
-		this->arr_[i] = srcArr.arr_[i];
+		arr_[i] = srcArr.arr_[i];
 	}
-}
-
-template<typename T>
-Array<T>& Array<T>::operator=(const Array& srcArr)
-{
-	this->size_ = srcArr.size_;
-	this->capacity_ = srcArr.capacity_;
-	this->arr_ = new T[this->capacity_];
-
-	for (size_t i = 0; i < size_; i++)
-	{
-		this->arr_[i] = srcArr.arr_[i];
-	}
-	return *this;
 }
 
 //Перенос
 template<typename T>
-Array<T>& Array<T>::operator=(Array&& srcArr)
+Array<T>& Array<T>::operator=(Array<T>&& srcArr)
 {
 	if (&srcArr == this)
+	{
 		return *this;
-
-	~Array();
-
-	this->size_ = srcArr.size_;
-	this->arr_ = srcArr.arr_;
-	this->capacity_ = srcArr.capacity_;
+	}
+	
+	size_ = srcArr.size_;
+	arr_ = srcArr.arr_;
+	capacity_ = srcArr.capacity_;
 
 	srcArr.size_ = srcArr.capacity_ = 0;
+	srcArr.arr_ = nullptr;
 
 	return *this;
 }
 
 template<typename T>
-Array<T>::Array(Array<T>&& srcArr) noexcept
+Array<T>::Array(Array<T>&& srcArr)
 {
-	this->arr_ = srcArr.arr_;
-	this->size_ = srcArr.size_;
-	this->capacity_ = srcArr.capacity_;
+	arr_ = srcArr.arr_;
+	size_ = srcArr.size_;
+	capacity_ = srcArr.capacity_;
 
 	srcArr.arr_ = nullptr;
 	srcArr.capacity_ = srcArr.size_ = 0;
@@ -123,18 +111,27 @@ Array<T>::Array(Array<T>&& srcArr) noexcept
 
 // Функции
 template<typename T>
-void Array<T>::pushBack(const T& elem)
+const T& Array<T>::getLast() const
 {
-	if (size_ == capacity_)
-		extendArray();
-	arr_[size_++] = elem;
+	assert(!isEmpty());
+	return arr_[size_ - 1];
 }
 
 template<typename T>
-T& Array<T>::operator[](const size_t index)
+void Array<T>::deleteLast()
 {
-	assert(index >= 0 && index < size_);
-	return arr_[index];
+	assert(!isEmpty());
+	--size_;
+}
+
+template<typename T>
+void Array<T>::pushBack(const T& elem)
+{
+	if (size_ == capacity_)
+	{
+		extendArray();
+	}
+	arr_[size_++] = elem;
 }
 
 template<typename T>
@@ -146,7 +143,9 @@ void Array<T>::extendArray()
 		newArr[i] = arr_[i];
 	}
 	if (arr_)
+	{
 		delete arr_;
+	}
 	arr_ = newArr;
 }
 
@@ -154,12 +153,23 @@ template<typename T>
 void Array<T>::reallocArray(const size_t newSize)
 {
 	if (arr_)
+	{
 		delete[] arr_;
+	}
 	arr_ = new T[newSize];
 	capacity_ = size_ = newSize;
 }
 
-void radixSort(Array<string>&  arr, Array<int>& indexArr, int offset, const int alphSize)
+
+// Операторы
+template<typename T>
+T& Array<T>::operator[](const size_t index)
+{
+	assert(index >= 0 && index < size_);
+	return arr_[index];
+}
+
+void radixSort(Array<string>& arr, Array<int>& indexArr, int offset, const int alphSize)
 {
 	if (indexArr.getSize() <= 1)
 	{
@@ -209,7 +219,7 @@ void sort(Array<string>& arr, const int alphSize)
 	{
 		sortedArr[i] = arr[indexArr[i]];
 	}
-	arr = sortedArr;
+	arr = std::move(sortedArr);
 }
 
 int main()
