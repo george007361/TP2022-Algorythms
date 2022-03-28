@@ -18,6 +18,7 @@
 //
 
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
@@ -27,22 +28,44 @@ enum
 	PUSHBACK = 3,
 };
 
+template<typename T>
 class Queue
 {
 public:
 	Queue() : buffer_(nullptr), size_(0), capacity_(0), first_(0) {};
 	~Queue();
-	void pushBack(int elem);
-	int popFront();
+
+	// перенос
+	Queue<T>(Queue<T>&& srcQ);
+	Queue<T>& operator = (Queue<T>&& srcQ);
+
+	// Копирование
+	Queue<T>(const Queue<T>& srcQ) = delete;
+	Queue<T>& operator = (const Queue<T>& srcQ) = delete;
+
+	// Функции
+	bool isEmpty() const { return size_ == 0; }
+	void pushBack(const T& elem);
+	T& popFront();
+
 private:
 	void expand();
 	void reduce();
+
 private:
-	int *buffer_;
+	T* buffer_;
 	size_t size_, capacity_, first_;
 };
 
-Queue::~Queue()
+template<typename T>
+Queue<T>::Queue(Queue<T>&& srcQ) : size_(srcQ.size_), capacity_(srcQ.capacity_), first_(srcQ.first_), buffer_(srcQ.buffer_)
+{
+	srcQ.capacity_ = srcQ.size_ = srcQ.first_ = 0;
+	srcQ.buffer_ = nullptr;
+}
+
+template<typename T>
+Queue<T>::~Queue()
 {
 	if (buffer_)
 	{
@@ -50,33 +73,8 @@ Queue::~Queue()
 	}
 }
 
-void Queue::pushBack(int elem)
-{
-	if (size_ == capacity_)
-	{
-		expand();
-	}
-	buffer_[(first_ + size_) % capacity_] = elem;
-	++size_;
-}
-
-int Queue::popFront()
-{
-	int elem = -1;
-	if (size_)
-	{
-		elem = buffer_[first_];
-		first_ = (first_ + 1) % capacity_;
-		--size_;
-		if (size_ >= 2 * capacity_)
-		{
-			reduce();
-		}
-	}
-	return elem;
-}
-
-void Queue::expand()
+template<typename T>
+void Queue<T>::expand()
 {
 	size_t  newCapacity = capacity_ ? capacity_ * 2 : 1;
 	int* newBuffer = new int[newCapacity];
@@ -94,7 +92,8 @@ void Queue::expand()
 	buffer_ = newBuffer;
 }
 
-void Queue::reduce()
+template<typename T>
+void Queue<T>::reduce()
 {
 	size_t  newCapacity = capacity_ ? capacity_ / 2 : 1;
 	int* newBuffer = new int[newCapacity];
@@ -112,14 +111,62 @@ void Queue::reduce()
 	buffer_ = newBuffer;
 }
 
+template<typename T>
+Queue<T>& Queue<T>::operator = (Queue<T>&& srcQ)
+{
+	if (&srcQ == this)
+	{
+		return *this;
+	}
+	~Queue();
+	size_ = srcQ.size_;
+	capacity_ = srcQ.capacity_;
+	first_ = srcQ.first_;
+	buffer_ = srcQ.buffer_;
+
+	srcQ.capacity_ = srcQ.size_ = srcQ.first_ = 0;
+	srcQ.buffer_ = nullptr;
+
+	return *this;
+}
+
+template<typename T>
+void Queue<T>::pushBack(const T& elem)
+{
+	if (size_ == capacity_)
+	{
+		expand();
+	}
+	buffer_[(first_ + size_) % capacity_] = elem;
+	++size_;
+}
+
+template<typename T>
+T& Queue<T>::popFront()
+{
+	assert(!isEmpty());
+	if (size_)
+	{
+		T elem = buffer_[first_];
+		first_ = (first_ + 1) % capacity_;
+		--size_;
+		if (size_ >= 2 * capacity_)
+		{
+			reduce();
+		}
+		
+		return elem;
+	}
+}
+
 int main()
 {
 	int countOfCommands;
 	cin >> countOfCommands;
-	
+
 	int a;
 	bool result = true;
-	auto que = Queue();
+	Queue<int> que;
 
 	for (int i = 0; result && i < countOfCommands; ++i)
 	{
@@ -133,9 +180,9 @@ int main()
 			break;
 		case POPFRONT:
 		{
-			if (b != que.popFront())
+			if (!que.isEmpty())
 			{
-				result = false;
+				result = (que.popFront() == b);
 			}
 
 			break;
