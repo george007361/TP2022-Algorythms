@@ -6,153 +6,222 @@ template<typename T>
 class Array
 {
 public:
-    // Конструкоторы
-    Array<T>() : arr(nullptr), size(0), capacity(0) {}
-    Array<T>(size_t size_) : size(size_), capacity(size_), arr(new T[size_]){ }
+	// Р¤СѓРЅРєС†РёРё
+	bool isEmpty() const { return size_ > 0 ? false : true; }
+	size_t getSize() const { return size_; }
+	const T& getLast() const;
+	void pushBack(const T& elem);
+	void deleteLast();
+	void reallocArray(const size_t newSize);
 
-    // Функции
-    size_t sizeArray() { return this->size; }
-    void pushBack(T elem);
-    void findPositionInterval(const T& elem, size_t& left, size_t& right);
-    size_t findPosition(const T& elem);
-    T& operator [](size_t index);
+	void findClosestElementInterval(const T& elem, size_t& left, size_t& right);
+	size_t findClosestElementIndex(const T& elem);
 
-    // Деструктор
-    ~Array<T>();
+	// РљРѕРЅСЃС‚СЂСѓРєРѕС‚РѕСЂС‹
+	Array<T>() : arr_(nullptr), size_(0), capacity_(0) {}
+	Array<T>(const size_t size) : size_(size), capacity_(size), arr_(new T[size]) { }
 
-    //Перенос
-    Array<T>(Array<T>&& srcArr);
-    Array<T>& operator = (Array<T>&& srcArr);
+	//РџРµСЂРµРЅРѕСЃ
+	Array<T>(Array<T>&& srcArr);
+	Array<T>& operator = (Array<T>&& srcArr);
 
-    //Копирование
-    Array<T>(const Array<T>& srcArr);
+	//РљРѕРїРёСЂРѕРІР°РЅРёРµ
+	Array<T>(const Array<T>& srcArr);
+	Array<T>& operator = (const Array<T>& srcArr) = delete;
+
+	// Р”РµСЃС‚СЂСѓРєС‚РѕСЂ
+	~Array<T>();
+
+	// РћРїРµСЂР°С‚РѕСЂС‹
+	T& operator [](const size_t index);
 
 private:
-    void extendArray();
-
+	void extendArray();
+	bool checkArrayOrder() const;
 private:
-    T* arr;
-    size_t size;
-    size_t capacity;
+	T* arr_;
+	size_t size_;
+	size_t capacity_;
 };
 
-
-// Деструктор
+// Р”РµСЃС‚СЂСѓРєС‚РѕСЂ
 template<typename T>
 Array<T>::~Array()
 {
-    delete arr;
-    arr = nullptr;
-    size = capacity = 0;
+	if (arr_)
+	{
+		delete[] arr_;
+	}
+	arr_ = nullptr;
+	size_ = capacity_ = 0;
 }
 
-// Копирование
+// РљРѕРїРёСЂРѕРІР°РЅРёРµ
 template<typename T>
 Array<T>::Array(const Array<T>& srcArr)
 {
-    this->size = srcArr.size;
-    this->capacity = srcArr.capacity;
-    this->arr = new T[this->capacity];
+	size_ = srcArr.size_;
+	capacity_ = srcArr.capacity_;
+	arr_ = new T[capacity_];
 
-    for (size_t i = 0; i < size; i++)
-    {
-        this->arr[i] = srcArr.arr[i];
-    }
+	for (size_t i = 0; i < size_; i++)
+	{
+		arr_[i] = srcArr.arr_[i];
+	}
 }
 
-//Перенос
+//РџРµСЂРµРЅРѕСЃ
 template<typename T>
 Array<T>& Array<T>::operator=(Array<T>&& srcArr)
 {
-    if (&srcArr == this)
-        return *this;
+	if (&srcArr == this)
+	{
+		return *this;
+	}
 
-    ~Array();
+	~Array();
 
-    this->size = srcArr.size;
-    this->arr = srcArr.arr;
-    this->capacity = srcArr.capacity;
+	size_ = srcArr.size_;
+	arr_ = srcArr.arr_;
+	capacity_ = srcArr.capacity_;
 
-    srcArr.size = srcArr.capacity = 0;
+	srcArr.size_ = srcArr.capacity_ = 0;
+	srcArr.arr_ = nullptr;
 
-    return *this;
+	return *this;
 }
 
 template<typename T>
 Array<T>::Array(Array<T>&& srcArr)
 {
-    this->arr = srcArr.arr;
-    this->size = srcArr.size;
-    this->capacity = srcArr.capacity;
+	arr_ = srcArr.arr_;
+	size_ = srcArr.size_;
+	capacity_ = srcArr.capacity_;
 
-    srcArr.arr = nullptr;
-    srcArr.capacity = srcArr.size = 0;
+	srcArr.arr_ = nullptr;
+	srcArr.capacity_ = srcArr.size_ = 0;
 }
 
-// Функции
+// Р¤СѓРЅРєС†РёРё
 template<typename T>
-void Array<T>::pushBack(T elem)
+const T& Array<T>::getLast() const
 {
-    if (size == capacity)
-        extendArray();
-    arr[size++] = elem;
-}
-
-template<typename T>
-void Array<T>::findPositionInterval(const T& elem, size_t& left, size_t& right)
-{
-    left = 0; 
-    right = size - 1;
-    if (arr[left] >= elem)
-    {
-        left = right = 0;
-        return;
-    }
-
-    size_t i = 1;
-    while (i < size && arr[i] <= elem)
-    {
-        left = i;
-        i *= 2;
-        right = i < size ? i : size - 1;
-    }
+	assert(!isEmpty());
+	return arr_[size_ - 1];
 }
 
 template<typename T>
-size_t Array<T>::findPosition(const T& elem)
+void Array<T>::deleteLast()
 {
-    size_t left, right;
-    findPositionInterval(elem, left, right);
-    if (left == 0 && right == 0)
-        return 0;
-
-    while (left < right)
-    {
-        size_t mid = (left + right) / 2;
-        if (arr[mid] < elem)
-            left = mid + 1;
-        else
-            right = mid;
-    }
-
-    if (left > 0 && arr[left] != elem && abs(arr[left - 1] - elem) <= abs(arr[left] - elem))
-        return left - 1;
-    else
-        return left;
+	assert(!isEmpty());
+	--size_;
 }
 
 template<typename T>
-T& Array<T>::operator[](size_t index)
+void Array<T>::pushBack(const T& elem)
 {
-    assert(index >= 0 && index < size);
-    return arr[index];
+	if (size_ == capacity_)
+	{
+		extendArray();
+	}
+	arr_[size_++] = elem;
 }
 
 template<typename T>
 void Array<T>::extendArray()
 {
-    T* newArr = new T[capacity = capacity ? capacity *= 2 : 1];
-    if (arr)
-        delete arr;
-    arr = newArr;
+	T* newArr = new T[capacity_ = capacity_ ? capacity_ *= 2 : 1];
+	for (size_t i = 0; i < size_; i++)
+	{
+		newArr[i] = arr_[i];
+	}
+	if (arr_)
+	{
+		delete arr_;
+	}
+	arr_ = newArr;
+}
+
+template<typename T>
+void Array<T>::reallocArray(const size_t newSize)
+{
+	if (arr_)
+	{
+		delete[] arr_;
+	}
+	arr_ = new T[newSize];
+	capacity_ = size_ = newSize;
+}
+
+// РћРїРµСЂР°С‚РѕСЂС‹
+template<typename T>
+T& Array<T>::operator[](const size_t index)
+{
+	assert(index >= 0 && index < size_);
+	return arr_[index];
+}
+
+//
+template<typename T>
+bool Array<T>::checkArrayOrder() const
+{
+	bool order = true;
+	for (size_t i = 0; i < size_ - 1 && order; i++)
+	{
+		if (arr_[i + 1] < arr_[i])
+		{
+			order = false;
+		}
+	}
+	return order;
+}
+
+template<typename T>
+void Array<T>::findClosestElementInterval(const T& elem, size_t& left, size_t& right)
+{
+	assert(checkArrayOrder());
+	left = 0;
+	right = size_ - 1;
+	if (arr_[left] >= elem)
+	{
+		left = right = 0;
+		return;
+	}
+
+	size_t i = 1;
+	while (i < size_ && arr_[i] <= elem)
+	{
+		left = i;
+		i *= 2;
+		right = i < size_ ? i : size_ - 1;
+	}
+}
+
+template<typename T>
+size_t Array<T>::findClosestElementIndex(const T& elem)
+{
+	size_t left, right;
+	findClosestElementInterval(elem, left, right);
+	
+	if (left == 0 && right == 0)
+		return 0;
+
+	while (left < right)
+	{
+		size_t mid = (left + right) / 2;
+		if (arr_[mid] < elem)
+			left = mid + 1;
+		else
+			right = mid;
+	}
+
+	if (left > 0 && arr_[left] != elem && abs(arr_[left - 1] - elem) <= abs(arr_[left] - elem))
+	{
+		return left - 1;
+
+	}
+	else
+	{
+		return left;
+	}
 }
