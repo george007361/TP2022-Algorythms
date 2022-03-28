@@ -3,105 +3,152 @@
 
 using namespace std;
 
-int cmpInt(const int a, const int b)
+int cmpInt(const int& a, const int& b)
 {
-    if (a == b)
-        return 0;
-    return a < b ? 1 : -1;
+	if (a == b)
+		return 0;
+	return a > b ? 1 : -1;
 }
 
 template<typename T>
-void swap(T& a, T& b)
+void swapper(T& a, T& b)
 {
-    T tmp = a;
-    a = b;
-    b = tmp;
+	T tmp = a;
+	a = b;
+	b = tmp;
 }
 
 template<typename T>
-int medianOfThree(const T* arr, const int left, const int right, int (*pcmp)(T&, T&)) // Выбрать средний по значению элемент из трёх (1, последнего, среднего)
-{ 
-    int mid = (left + right) / 2;
-    if ( ( pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0 ) || ( pcmp(arr[mid], arr[right]) >= 0 && pcmp(arr[left], arr[right]) >= 0 ) )
-    {
-        return left;
-    }
-    else if ( ( pcmp(arr[mid], arr[left]) >= 0 && pcmp(arr[mid], arr[right]) ) <= 0 || ( pcmp(arr[mid], arr[right]) >= 0 && pcmp(arr[mid], arr[left]) <= 0 ) )
-    {
-        return mid;
-    }
-    else
-    {
-        return right;
-    }
-}
-
-int partition(int *arr, const int startIndex, const int endIndex)
+int medianOfThree(const T* arr, const int left, const int right, int (*pcmp)(const T&, const T&)) // Выбрать средний по значению элемент из трёх (1, последнего, среднего)
 {
-    int pivotIndex = medianOfThree(arr, startIndex, endIndex);
-    swap(arr[endIndex], arr[pivotIndex]);
-
-    int pivot = arr[pivotIndex];
-    int i = startIndex;
-    int j = startIndex;
-
-    while (j < endIndex)
-    {
-        if (arr[j] <= pivot)
-        {
-            swap(arr[i], arr[j]);
-            ++i;
-        }
-        ++j;
-    }
-    swap(arr[j], arr[i]); // Меняем pivot и первый элемент > pivot местами, т.е. i укажет индекс пивота после разделения
-    return i;
+	int mid = (left + right) / 2;
+	if ((pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0) || (pcmp(arr[mid], arr[right]) >= 0 && pcmp(arr[left], arr[right]) >= 0))
+	{
+		return left;
+	}
+	else if ((pcmp(arr[mid], arr[left]) >= 0 && pcmp(arr[mid], arr[right]) <= 0) || (pcmp(arr[mid], arr[right]) >= 0 && pcmp(arr[mid], arr[left]) <= 0))
+	{
+		return mid;
+	}
+	else
+	{
+		return right;
+	}
 }
 
-int findKStat(int* arr, const int startIndex, const int endIndex, const int k)
+template<typename T>
+int partition(T* arr, const int startIndex, const int endIndex, int (*pcmp)(const T&, const T&))
 {
-    int pivotIndex = -1, leftIndex = startIndex, rightIndex = endIndex;
-    while (true)
-    {
-        pivotIndex = partition(arr, leftIndex, rightIndex);
-        if (pivotIndex == k) // Если нашли позицию, то выходим
-        {
-            break;
-        }
-        if (k < pivotIndex)
-        {
-            // Смотрим левую часть
-            rightIndex = pivotIndex - 1;
-        }
-        else
-        {
-            // Смотрим правую часть
-            leftIndex = pivotIndex + 1;
-        }
-    }
+	assert(arr);
+	if (endIndex - startIndex + 1 <= 1)
+	{
+		return startIndex;
+	}
 
-    assert(pivotIndex != -1);
-    return arr[pivotIndex];
+	int pivotIndex = medianOfThree(arr, startIndex, endIndex, pcmp);
+	swapper(arr[endIndex], arr[pivotIndex]);
+
+	const T& pivot = arr[endIndex];
+
+	int i = startIndex;
+	int j = startIndex;
+
+	while (j < endIndex)
+	{
+		if (pcmp(arr[j], pivot) <= 0)
+		{
+			swapper(arr[i], arr[j]);
+			++i;
+		}
+		++j;
+	}
+	swapper(arr[j], arr[i]); // Меняем pivot и первый элемент > pivot местами, т.е. i укажет индекс пивота после разделения
+
+	return i;
 }
 
-
-int findMedian(int* arr, const int startIndex, const int endIndex)
+template<typename T>
+T findKStat(T* arr, const int startIndex, const int endIndex, const int k_, int (*pcmp)(const T&, const T&))
 {
-    if ((endIndex - startIndex + 1) % 2 == 1)
-    {
-        return findKStat(arr, len(l) / 2, pivot_fn)
-    }
-    else
-    {
-        return 0.5 * (quickselect(l, len(l) / 2 - 1, pivot_fn) +
-            quickselect(l, len(l) / 2, pivot_fn))
-    }
+	int k = k_;
+	if (k < 0)
+	{
+		k = 0;
+	}
+	if (k > endIndex - startIndex)
+	{
+		k = endIndex - startIndex;
+	}
+
+	int pivotIndex = -1, leftIndex = startIndex, rightIndex = endIndex;
+	while (true)
+	{
+		pivotIndex = partition(arr, leftIndex, rightIndex, pcmp);
+		if (pivotIndex == k) // Если нашли позицию, то выходим
+		{
+			break;
+		}
+		if (k < pivotIndex)
+		{
+			// Смотрим левую часть
+			rightIndex = pivotIndex - 1;
+		}
+		else
+		{
+			// Смотрим правую часть
+			leftIndex = pivotIndex + 1;
+		}
+	}
+
+	assert(pivotIndex != -1);
+
+	return arr[pivotIndex];
 }
+
+template<typename T>
+T findMedian(T* arr, const int startIndex, const int endIndex, int (*pcmp)(const T&, const T&))
+{
+	assert(arr);
+	assert(pcmp);
+
+	return findKStat(arr, startIndex, endIndex, (endIndex - startIndex + 1) / 2, pcmp);
+}
+
+template<typename T>
+T findPercentile(T* arr, const int startIndex, const int endIndex, const int percentile, int (*pcmp)(const T&, const T&))
+{
+	assert(percentile >= 0 && percentile <= 100);
+	assert(pcmp);
+
+	int k = (float)(endIndex + 1 - startIndex) / (float)100 * (float)percentile;
+
+	return findKStat(arr, startIndex, endIndex, k, pcmp);
+}
+
 
 int main()
 {
-    int arr[] = { 3, 2, 6, 0, 2, 3 };
-    cout << findKStat(arr, 0, 5, 5);
+	int count;
+	cin >> count;
+	if (count <= 0)
+	{
+		return EXIT_SUCCESS;
+	}
 
-    return EXIT_SUCCESS;
+	int* arr = new int[count];
+
+	for (int i = 0; i < count; i++)
+	{
+		cin >> arr[i];
+	}
+
+	cout << findPercentile(arr, 0, count - 1, 10, cmpInt) << endl;
+
+	cout << findMedian(arr, 0, count - 1, cmpInt) << endl;
+
+	cout << findPercentile(arr, 0, count - 1, 90, cmpInt) << endl;
+
+	delete[] arr;
+
+	return EXIT_SUCCESS;
 }
