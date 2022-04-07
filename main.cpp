@@ -68,26 +68,14 @@ int partition(T* arr, const int startIndex, const int endIndex, int (*pcmp)(cons
 }
 
 template<typename T>
-T findKStat(T* arr, const int startIndex, const int endIndex, const int k_, int (*pcmp)(const T&, const T&))
+T& findKStat(T* arr, const int startIndex, const int endIndex, const int k, int (*pcmp)(const T&, const T&))
 {
-	int k = k_;
-	if (k < 0)
-	{
-		k = 0;
-	}
-	if (k > endIndex - startIndex)
-	{
-		k = endIndex - startIndex;
-	}
+	assert(k >= 0 && k <= endIndex - startIndex);
 
 	int pivotIndex = -1, leftIndex = startIndex, rightIndex = endIndex;
-	while (true)
+	do
 	{
 		pivotIndex = partition(arr, leftIndex, rightIndex, pcmp);
-		if (pivotIndex == k) // Если нашли позицию, то выходим
-		{
-			break;
-		}
 		if (k < pivotIndex)
 		{
 			// Смотрим левую часть
@@ -98,7 +86,7 @@ T findKStat(T* arr, const int startIndex, const int endIndex, const int k_, int 
 			// Смотрим правую часть
 			leftIndex = pivotIndex + 1;
 		}
-	}
+	} while (pivotIndex != k); // Если нашли позицию, то выходим
 
 	assert(pivotIndex != -1);
 
@@ -141,7 +129,6 @@ int main()
 	{
 		cin >> arr[i];
 	}
-
 	cout << findPercentile(arr, 0, count - 1, 10, cmpInt) << endl;
 
 	cout << findMedian(arr, 0, count - 1, cmpInt) << endl;

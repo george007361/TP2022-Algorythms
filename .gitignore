@@ -34,3 +34,6 @@
 #My
 .vs
 x*
+.vscode
+data*
+test*
