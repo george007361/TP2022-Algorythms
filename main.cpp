@@ -17,8 +17,8 @@
 //Требования: Очередь должна быть реализована в виде класса.
 //
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 using namespace std;
 
@@ -46,7 +46,7 @@ public:
 	// Функции
 	bool isEmpty() const { return size_ == 0; }
 	void pushBack(const T& elem);
-	T& popFront();
+	T popFront();
 
 private:
 	void expand();
@@ -79,7 +79,7 @@ template<typename T>
 void Queue<T>::expand()
 {
 	size_t  newCapacity = capacity_ ? capacity_ * 2 : 1;
-	int* newBuffer = new int[newCapacity];
+	T* newBuffer = new T[newCapacity];
 
 	for (size_t i = 0; i < size_; ++i)
 	{
@@ -97,13 +97,19 @@ void Queue<T>::expand()
 template<typename T>
 void Queue<T>::reduce()
 {
-	size_t  newCapacity = capacity_ ? capacity_ / 2 : 1;
-	int* newBuffer = new int[newCapacity];
+	if(capacity_ < 2)
+	{
+		return;
+	}
+
+	size_t  newCapacity = capacity_ / 2;
+	T* newBuffer = new T[newCapacity];
 
 	for (size_t i = 0; i < size_; ++i)
 	{
 		newBuffer[i] = buffer_[(first_ + i) % capacity_];
 	}
+
 	capacity_ = newCapacity;
 	first_ = 0;
 	if (buffer_)
@@ -120,7 +126,9 @@ Queue<T>& Queue<T>::operator = (Queue<T>&& srcQ)
 	{
 		return *this;
 	}
+
 	~Queue();
+
 	size_ = srcQ.size_;
 	capacity_ = srcQ.capacity_;
 	first_ = srcQ.first_;
@@ -144,13 +152,14 @@ void Queue<T>::pushBack(const T& elem)
 }
 
 template<typename T>
-T& Queue<T>::popFront()
+T Queue<T>::popFront()
 {
 	assert(!isEmpty());
+
 	T elem = buffer_[first_];
 	first_ = (first_ + 1) % capacity_;
 	--size_;
-	if (size_ >= 2 * capacity_)
+	if (size_ * 2 <= capacity_)
 	{
 		reduce();
 	}
@@ -181,7 +190,7 @@ int main()
 		{
 			if (!que.isEmpty())
 			{
-				result = (que.popFront() == b);
+				result = (b == que.popFront());
 			}
 
 			break;
