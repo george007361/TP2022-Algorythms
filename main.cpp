@@ -148,7 +148,7 @@ void Array<T>::extendArray()
 	}
 	if (arr_)
 	{
-		delete arr_;
+		delete [] arr_;
 	}
 	arr_ = newArr;
 }
