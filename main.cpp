@@ -1,5 +1,33 @@
-﻿#include <iostream>
+﻿// Дано множество целых чисел из [0..10^9] размера n. 
+// Используя алгоритм поиска k-ой порядковой статистики, требуется найти следующие параметры множества:
+// 10%  перцентиль
+// медиана
+// 90%  перцентиль
+
+// Требования: к дополнительной памяти: O(n). 
+// Среднее время работы: O(n)
+// Должна быть отдельно выделенная функция partition. 
+// Рекурсия запрещена. 
+// Решение должно поддерживать передачу функции сравнения снаружи.
+
+
+// Функцию Partition следует реализовывать методом прохода двумя итераторами в одном направлении. 
+// Описание для случая прохода от начала массива к концу:
+// Выбирается опорный элемент. Опорный элемент меняется с последним элементом массива.
+// Во время работы Partition в начале массива содержатся элементы, не бОльшие опорного. 
+// Затем располагаются элементы, строго бОльшие опорного. В конце массива лежат нерассмотренные элементы. 
+// Последним элементом лежит опорный.
+// Итератор (индекс) i указывает на начало группы элементов, строго бОльших опорного.
+// Итератор j больше i, итератор j указывает на первый нерассмотренный элемент.
+// Шаг алгоритма. Рассматривается элемент, на который указывает j. Если он больше опорного, то сдвигаем j.
+// Если он не больше опорного, то меняем a[i] и a[j] местами, сдвигаем i и сдвигаем j.
+// В конце работы алгоритма меняем опорный и элемент, на который указывает итератор i.
+
+// 6_1. Реализуйте стратегию выбора опорного элемента “медиана трёх”. 
+// Функцию Partition реализуйте методом прохода двумя итераторами от начала массива к концу.
+
 #include <cassert>
+#include <iostream>
 
 using namespace std;
 
@@ -25,15 +53,15 @@ int medianOfThree(const T* arr, const int left, const int right, int (*pcmp)(con
 
 	if ((pcmp(arr[left], arr[mid]) <= 0 && pcmp(arr[mid], arr[right]) <= 0) || (pcmp(arr[right], arr[mid]) <= 0 && pcmp(arr[mid], arr[left]) <= 0))
 	{
-		return mid; //тогда b среднее, иначе
+		return mid;
 	}
 	else if ((pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0) || (pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0))
 	{
-		return left; //a среднее
+		return left;
 	}
 	else
 	{
-		return  right; //c среднее
+		return  right;
 	}
 }
 
@@ -100,7 +128,7 @@ T& findKStat(T* arr, const int startIndex, const int endIndex, const int k, int 
 }
 
 template<typename T>
-T findMedian(T* arr, const int startIndex, const int endIndex, int (*pcmp)(const T&, const T&))
+T& findMedian(T* arr, const int startIndex, const int endIndex, int (*pcmp)(const T&, const T&))
 {
 	assert(arr);
 	assert(pcmp);
@@ -109,10 +137,10 @@ T findMedian(T* arr, const int startIndex, const int endIndex, int (*pcmp)(const
 }
 
 template<typename T>
-T findPercentile(T* arr, const int startIndex, const int endIndex, const int percentile, int (*pcmp)(const T&, const T&))
+T& findPercentile(T* arr, const int startIndex, const int endIndex, const int percentile, int (*pcmp)(const T&, const T&))
 {
 	assert(percentile >= 0 && percentile <= 100);
-	assert(pcmp);
+	assert(arr && pcmp);
 
 	int k = (float)(endIndex + 1 - startIndex) / (float)100 * (float)percentile;
 
@@ -124,10 +152,7 @@ int main()
 {
 	int count;
 	cin >> count;
-	if (count <= 0)
-	{
-		return EXIT_SUCCESS;
-	}
+	assert(count > 0);
 
 	int* arr = new int[count];
 
