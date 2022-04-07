@@ -71,6 +71,8 @@ Queue<T>::~Queue()
 	{
 		delete[] buffer_;
 	}
+	buffer_ = nullptr;
+	size_ = capacity_ = first_ = 0;
 }
 
 template<typename T>
@@ -145,18 +147,15 @@ template<typename T>
 T& Queue<T>::popFront()
 {
 	assert(!isEmpty());
-	if (size_)
+	T elem = buffer_[first_];
+	first_ = (first_ + 1) % capacity_;
+	--size_;
+	if (size_ >= 2 * capacity_)
 	{
-		T elem = buffer_[first_];
-		first_ = (first_ + 1) % capacity_;
-		--size_;
-		if (size_ >= 2 * capacity_)
-		{
-			reduce();
-		}
-		
-		return elem;
+		reduce();
 	}
+
+	return elem;
 }
 
 int main()
