@@ -7,7 +7,7 @@ int cmpInt(const int& a, const int& b)
 {
 	if (a == b)
 		return 0;
-	return a > b ? 1 : -1;
+	return a < b ? 1 : -1;
 }
 
 template<typename T>
@@ -21,19 +21,20 @@ void swapper(T& a, T& b)
 template<typename T>
 int medianOfThree(const T* arr, const int left, const int right, int (*pcmp)(const T&, const T&)) // Выбрать средний по значению элемент из трёх (1, последнего, среднего)
 {
-	int mid = (left + right) / 2;
-	if ((pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0) || (pcmp(arr[mid], arr[right]) >= 0 && pcmp(arr[left], arr[right]) >= 0))
-	{
-		return left;
-	}
-	else if ((pcmp(arr[mid], arr[left]) >= 0 && pcmp(arr[mid], arr[right]) <= 0) || (pcmp(arr[mid], arr[right]) >= 0 && pcmp(arr[mid], arr[left]) <= 0))
-	{
-		return mid;
-	}
-	else
-	{
-		return right;
-	}
+	 int mid = (left + right) / 2;
+
+    if( ( pcmp(arr[left], arr[mid]) <= 0 && pcmp(arr[mid], arr[right]) <= 0) || (pcmp(arr[right], arr[mid]) <= 0 && pcmp(arr[mid], arr[left]) <= 0))
+        {
+			return mid; //тогда b среднее, иначе
+		}
+    else if( (pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0) || ( pcmp(arr[mid], arr[left]) <= 0 && pcmp(arr[left], arr[right]) <= 0))
+        {
+			return left; //a среднее
+		}
+		else
+        {
+			return  right; //c среднее
+}
 }
 
 template<typename T>
