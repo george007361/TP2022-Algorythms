@@ -34,6 +34,7 @@ public:
 
 	// Операторы
 	T& operator [](const size_t index);
+	const T& operator[](const size_t index) const;
 
 private:
 	void extendArray();
@@ -156,6 +157,13 @@ void Array<T>::reallocArray(const size_t newSize)
 // Операторы
 template<typename T>
 T& Array<T>::operator[](const size_t index)
+{
+	assert(index >= 0 && index < size_);
+	return arr_[index];
+}
+
+template<typename T>
+const T& Array<T>::operator[](const size_t index) const
 {
 	assert(index >= 0 && index < size_);
 	return arr_[index];

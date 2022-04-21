@@ -5,6 +5,46 @@
 
 using namespace std;
 
+class Point
+{
+public:
+	Point() = default;
+	Point(int x, int type) : _x(x), _type(type) {}
+	Point(Point&&) = default;
+	Point(const Point&) = default;
+	Point& operator=(Point&&) = default;
+	Point& operator=(const Point&) = default;
+	~Point() = default;
+
+	static int compare(const Point& a, const Point& b) { return a._x - b._x; }
+	static void printPoints(const Array<Point>& arr);
+
+	int getX() const { return _x; }
+	int getType() const { return _type; }
+	void printPoint() const { cout << "[ x=" << _x << "; Type: " << _type << " ] "; }
+
+public:
+	enum
+	{
+		LineStart,
+		LineEnd
+	};
+
+private:
+	int _x;
+	int _type;
+};
+
+void Point::printPoints(const Array<Point>& arr)
+{
+	cout << endl;
+	for (size_t i = 0; i < arr.getSize(); ++i)
+	{
+		arr[i].printPoint();
+	}
+	cout << endl;
+}
+
 template<typename T>
 class MergeSort
 {
@@ -38,7 +78,7 @@ private:
 	{
 		assert(pcmp);
 
-		int i, j, k;
+		size_t i, j, k;
 		size_t leftSubarraySize = leftSubarrayEnds - leftSubarrayStarts + 1;
 		size_t rightSubarraySize = rightSubarrayEnds - leftSubarrayEnds;
 		Array<T> leftSubarray(leftSubarraySize);
@@ -78,88 +118,45 @@ private:
 	}
 };
 
-class Line
-{
-public:
-	Line() = default;
-	Line(int l, int r) : _l(l), _r(r) {	assert(_l < _r); }
-	Line(Line&&) = default;
-	Line(const Line&) = default;
-	Line& operator=(Line&&) = default;
-	Line& operator=(const Line&) = default;
-
-	static int cmpLeftDot(const Line& a, const Line& b) { return a._l - b._l; }
-	static int findMaxRightDot(Array<Line>& arr);
-	static void printLines(Array<Line>& arr);
-	static size_t findOneLayerLength(Array<Line>& arr);
-	
-	int getL() const { return _l; };
-	int getR() const { return _r; };
-	void printLine() const;
-
-private:
-	int _l, _r;
-};
-
-void Line::printLines(Array<Line>& arr)
-{
-	cout << endl;
-	for (int i = 0; i < arr.getSize(); ++i)
-	{
-		arr[i].printLine();
-	}
-	cout << endl;
-}
-
-void Line::printLine() const
-{
-	cout << "[ " << _l << " ; " << _r << " ]" << endl;
-}
-
-int Line::findMaxRightDot(Array<Line>& arr)
-{
-	assert(arr.getSize());
-	int x = arr[0].getR();
-	for (size_t i = 0; i < arr.getSize(); i++)
-	{
-		if (x < arr[i].getR())
-		{
-			x = arr[i].getR();
-		}
-	}
-	return x;
-}
-
-size_t Line::findOneLayerLength(Array<Line>& arr)
+size_t findOneLayerLength(Array<Point>& arr)
 {
 	assert(arr.getSize());
 	
-	MergeSort<Line>::sort(arr, Line::cmpLeftDot);
+	MergeSort<Point>::sort(arr, Point::compare);
 
 	size_t oneLayerLen = 0;
-	int layerCount = 0;
-	int xMin = arr[0].getL();
-	int xMax = Line::findMaxRightDot(arr);
+	int layersCount = 0;
 
-	for (int x = xMin; x <= xMax; ++x)
+	int oneLayerStartX, oneLayerEndX;
+
+	for (size_t i = 0; i < arr.getSize(); ++i)
 	{
-		for (size_t i = 0; i < arr.getSize(); ++i)
+		if (arr[i].getType() == Point::LineStart)
 		{
-			if (x == arr[i].getL())
+			if (layersCount == 0)
 			{
-				++layerCount;
+				oneLayerStartX = arr[i].getX();
 			}
-			if (x == arr[i].getR())
+			if(layersCount == 1)
 			{
-				--layerCount;
+				oneLayerLen += arr[i].getX() - oneLayerStartX;
 			}
+			++layersCount;
 		}
-		if (layerCount == 1)
+		if (arr[i].getType() == Point::LineEnd)
 		{
-			++oneLayerLen;
+			if (layersCount == 2)
+			{
+				oneLayerStartX = arr[i].getX();
+			}
+			if (layersCount == 1)
+			{
+				oneLayerLen += arr[i].getX() - oneLayerStartX;
+			}
+			--layersCount;
 		}
 	}
-	
+
 	return oneLayerLen;
 }
 
@@ -167,17 +164,18 @@ int main()
 {
 	int linesCount;
 	cin >> linesCount;
-	Array<Line> arr(linesCount);
-
-	for (int i = 0; i < arr.getSize(); ++i)
+	Array<Point> arr(linesCount * 2);
+	
+	for (size_t i = 0; i < arr.getSize(); ++i)
 	{
-		int start, end;
-		cin >> start;
-		cin >> end;
-		arr[i] = Line(start, end);
+		int x;
+		cin >> x;
+		arr[i] = Point(x, i % 2);
 	}
 
-	cout << Line::findOneLayerLength(arr);
-
+	//Point::printPoints(arr);
+	cout << findOneLayerLength(arr);
+	//Point::printPoints(arr);
+	
 	return EXIT_SUCCESS;
 }
