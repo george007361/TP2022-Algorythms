@@ -17,9 +17,6 @@ public:
 	void deleteLast();
 	void reallocArray(const size_t newSize);
 
-	void findClosestElementInterval(const T& elem, size_t& left, size_t& right);
-	size_t findClosestElementIndex(const T& elem);
-
 	// Конструкоторы
 	Array<T>() : arr_(nullptr), size_(0), capacity_(0) {}
 	Array<T>(const size_t size) : size_(size), capacity_(size), arr_(new T[size]) { }
@@ -41,7 +38,7 @@ public:
 
 private:
 	void extendArray();
-	bool checkArrayOrder() const;
+
 private:
 	T* arr_;
 	size_t size_;
@@ -170,71 +167,6 @@ const T& Array<T>::operator[](const size_t index) const
 {
 	assert(index >= 0 && index < size_);
 	return arr_[index];
-}
-
-//
-template<typename T>
-bool Array<T>::checkArrayOrder() const
-{
-	bool order = true;
-	for (size_t i = 0; i < size_ - 1 && order; i++)
-	{
-		if (arr_[i + 1] < arr_[i])
-		{
-			order = false;
-		}
-	}
-	return order;
-}
-
-template<typename T>
-void Array<T>::findClosestElementInterval(const T& elem, size_t& left, size_t& right)
-{
-	assert(checkArrayOrder());
-	left = 0;
-	right = size_ - 1;
-	if (arr_[left] >= elem)
-	{
-		left = right = 0;
-		return;
-	}
-
-	size_t i = 1;
-	while (i < size_ && arr_[i] <= elem)
-	{
-		left = i;
-		i *= 2;
-		right = i < size_ ? i : size_ - 1;
-	}
-}
-
-template<typename T>
-size_t Array<T>::findClosestElementIndex(const T& elem)
-{
-	size_t left, right;
-	findClosestElementInterval(elem, left, right);
-
-	if (left == 0 && right == 0)
-		return 0;
-
-	while (left < right)
-	{
-		size_t mid = (left + right) / 2;
-		if (arr_[mid] < elem)
-			left = mid + 1;
-		else
-			right = mid;
-	}
-
-	if (left > 0 && arr_[left] != elem && abs(arr_[left - 1] - elem) <= abs(arr_[left] - elem))
-	{
-		return left - 1;
-
-	}
-	else
-	{
-		return left;
-	}
 }
 
 ///////////////////////Point//////////////////////////////////////////////
