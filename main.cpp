@@ -1,4 +1,20 @@
-﻿
+﻿// На числовой прямой окрасили N отрезков.
+// Известны координаты левого и правого концов каждого отрезка [Li, Ri]. 
+// Найти сумму длин частей числовой прямой, окрашенных ровно в один слой.
+// N ≤ 10000. Li, Ri — целые числа в диапазоне [0, 10^9].
+
+// Формат ввода
+// В первой строке записано количество отрезков.
+// В каждой последующей строке через пробел записаны координаты левого и правого концов отрезка.
+
+// Формат вывода
+// Выведите целое число — длину окрашенной в один слой части.
+
+// Требование для всех вариантов Задачи 5
+// Во всех задачах данного раздела необходимо реализовать и использовать сортировку слиянием в виде шаблонной функции. 
+// Решение должно поддерживать передачу функции сравнения снаружи.
+// Общее время работы алгоритма O(n log n).
+
 #include <cassert>
 #include <iostream>
 
@@ -212,87 +228,73 @@ void Point::printPoints(const Array<Point>& arr)
 }
 
 //////////////////////////////Merge sort///////////////////////////////
+template<typename T>
+void mergeSort(Array<T>& arr, int (*pcmp)(const T&, const T&))
+{
+	assert(pcmp);
+
+	for (size_t currSubarraySize = 1; currSubarraySize <= arr.getSize() - 1; currSubarraySize *= 2)
+	{
+		for (size_t leftSubarrayStarts = 0; leftSubarrayStarts < arr.getSize() - 1; leftSubarrayStarts += 2 * currSubarraySize)
+		{
+			size_t leftSubarrayEnds = min(leftSubarrayStarts + currSubarraySize - 1, arr.getSize() - 1);
+			size_t rightSubarrayEnds = min(leftSubarrayStarts + 2 * currSubarraySize - 1, arr.getSize() - 1);
+			merge(arr, leftSubarrayStarts, leftSubarrayEnds, rightSubarrayEnds, pcmp);
+		}
+	}
+}
 
 template<typename T>
-class MergeSort
+void merge(Array<T>& arr, size_t leftSubarrayStarts, size_t leftSubarrayEnds, size_t rightSubarrayEnds, int (*pcmp)(const T&, const T&))
 {
-	MergeSort() = delete;
-	MergeSort(MergeSort&&) = delete;
-	MergeSort(const MergeSort&) = delete;
-	MergeSort& operator=(MergeSort&&) = delete;
-	MergeSort& operator=(const MergeSort&) = delete;
+	assert(pcmp);
 
-public:
-	static void sort(Array<T>& arr, int (*pcmp)(const T&, const T&))
+	size_t i, j, k;
+	size_t leftSubarraySize = leftSubarrayEnds - leftSubarrayStarts + 1;
+	size_t rightSubarraySize = rightSubarrayEnds - leftSubarrayEnds;
+	Array<T> leftSubarray(leftSubarraySize);
+	Array<T> rightSubarray(rightSubarraySize);
+
+	for (i = 0; i < leftSubarraySize; ++i)
 	{
-		assert(pcmp);
+		leftSubarray[i] = arr[leftSubarrayStarts + i];
+	}
 
-		size_t currSubarraySize;
-		size_t leftSubarrayStarts;
+	for (j = 0; j < rightSubarraySize; ++j)
+	{
+		rightSubarray[j] = arr[leftSubarrayEnds + 1 + j];
+	}
 
-		for (currSubarraySize = 1; currSubarraySize <= arr.getSize() - 1; currSubarraySize *= 2)
+	i = 0;
+	j = 0;
+	k = leftSubarrayStarts;
+
+	for (; i < leftSubarraySize && j < rightSubarraySize; ++k)
+	{
+		if (pcmp(leftSubarray[i], rightSubarray[j]) <= 0)
 		{
-			for (leftSubarrayStarts = 0; leftSubarrayStarts < arr.getSize() - 1; leftSubarrayStarts += 2 * currSubarraySize)
-			{
-				size_t leftSubarrayEnds = min(leftSubarrayStarts + currSubarraySize - 1, arr.getSize() - 1);
-				size_t rightSubarrayEnds = min(leftSubarrayStarts + 2 * currSubarraySize - 1, arr.getSize() - 1);
-				merge(arr, leftSubarrayStarts, leftSubarrayEnds, rightSubarrayEnds, pcmp);
-			}
+			arr[k] = leftSubarray[i];
+			++i;
+		}
+		else
+		{
+			arr[k] = rightSubarray[j];
+			++j;
 		}
 	}
 
-private:
-	static void merge(Array<T>& arr, size_t leftSubarrayStarts, size_t leftSubarrayEnds, size_t rightSubarrayEnds, int (*pcmp)(const T&, const T&))
-	{
-		assert(pcmp);
+	for (; i < leftSubarraySize; arr[k++] = leftSubarray[i++]);
 
-		size_t i, j, k;
-		size_t leftSubarraySize = leftSubarrayEnds - leftSubarrayStarts + 1;
-		size_t rightSubarraySize = rightSubarrayEnds - leftSubarrayEnds;
-		Array<T> leftSubarray(leftSubarraySize);
-		Array<T> rightSubarray(rightSubarraySize);
-
-		for (i = 0; i < leftSubarraySize; ++i)
-		{
-			leftSubarray[i] = arr[leftSubarrayStarts + i];
-		}
-
-		for (j = 0; j < rightSubarraySize; ++j)
-		{
-			rightSubarray[j] = arr[leftSubarrayEnds + 1 + j];
-		}
-
-		i = 0;
-		j = 0;
-		k = leftSubarrayStarts;
-
-		for (; i < leftSubarraySize && j < rightSubarraySize; ++k)
-		{
-			if (pcmp(leftSubarray[i], rightSubarray[j]) <= 0)
-			{
-				arr[k] = leftSubarray[i];
-				++i;
-			}
-			else
-			{
-				arr[k] = rightSubarray[j];
-				++j;
-			}
-		}
-
-		for (; i < leftSubarraySize; arr[k++] = leftSubarray[i++]);
-
-		for (; j < rightSubarraySize; arr[k++] = rightSubarray[j++]);
-	}
-};
+	for (; j < rightSubarraySize; arr[k++] = rightSubarray[j++]);
+}
 
 ///////////////////Task////////////////////////
 
 size_t findOneLayerLength(Array<Point>& arr)
 {
-	assert(arr.getSize());
+	assert(!arr.isEmpty());
 
-	MergeSort<Point>::sort(arr, Point::compare);
+	mergeSort(arr, Point::compare);
 
 	size_t oneLayerLen = 0;
 	int layersCount = 0;
@@ -333,20 +335,23 @@ size_t findOneLayerLength(Array<Point>& arr)
 ///////////////////////main////////////////////////////
 int main()
 {
-	int linesCount;
+	size_t linesCount;
 	cin >> linesCount;
 	Array<Point> arr(linesCount * 2);
 
-	for (size_t i = 0; i < arr.getSize(); ++i)
+	size_t pIndex = 0;
+	for (size_t i = 0; i < linesCount; ++i, pIndex += 2)
 	{
-		int x;
-		cin >> x;
-		arr[i] = Point(x, i % 2);
+		int L, R;
+		cin >> L;
+		cin >> R;
+		assert(L < R);
+
+		arr[pIndex] = Point(L, Point::LineStart);
+		arr[pIndex + 1] = Point(R, Point::LineEnd);
 	}
 
-	//Point::printPoints(arr);
 	cout << findOneLayerLength(arr);
-	//Point::printPoints(arr);
 
 	return EXIT_SUCCESS;
 }
