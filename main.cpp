@@ -15,7 +15,6 @@ class MergeSort
 	MergeSort& operator=(const MergeSort&) = delete;
 
 public:
-	template<typename T>
 	static void sort(Array<T>& arr, int (*pcmp)(const T&, const T&))
 	{
 		assert(pcmp);
@@ -160,6 +159,7 @@ size_t Line::findOneLayerLength(Array<Line>& arr)
 			++oneLayerLen;
 		}
 	}
+	
 	return oneLayerLen;
 }
 
