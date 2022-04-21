@@ -7,7 +7,6 @@
 
 using namespace std;
 
-#define COUNT_OF_LINES 3 //((sizeMB * 1024 * 1024) / sizeof(int))
 #define A 0
 #define B 1000000000
 

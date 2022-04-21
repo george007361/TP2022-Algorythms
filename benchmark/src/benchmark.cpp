@@ -43,7 +43,7 @@ int runTest(string pathToExe, double &timePassed) {
   int exitCode = 0;
   struct timespec startTime, endTime;
   clock_gettime(CLOCK_REALTIME, &startTime);
-  cout << "Output:\n" << execCommand(pathToExe, exitCode); // << endl;
+  cout << "Output:\n" << execCommand(pathToExe, exitCode) << endl;
   clock_gettime(CLOCK_REALTIME, &endTime);
   if (exitCode == EXIT_FAILURE) {
 
