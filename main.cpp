@@ -1,4 +1,5 @@
-﻿#include <cassert>
+﻿
+#include <cassert>
 #include <iostream>
 
 using namespace std;
@@ -140,7 +141,7 @@ void Array<T>::extendArray()
 	}
 	if (arr_)
 	{
-		delete [] arr_;
+		delete[] arr_;
 	}
 	arr_ = newArr;
 }
@@ -212,7 +213,7 @@ size_t Array<T>::findClosestElementIndex(const T& elem)
 {
 	size_t left, right;
 	findClosestElementInterval(elem, left, right);
-	
+
 	if (left == 0 && right == 0)
 		return 0;
 
@@ -358,7 +359,7 @@ private:
 size_t findOneLayerLength(Array<Point>& arr)
 {
 	assert(arr.getSize());
-	
+
 	MergeSort<Point>::sort(arr, Point::compare);
 
 	size_t oneLayerLen = 0;
@@ -374,7 +375,7 @@ size_t findOneLayerLength(Array<Point>& arr)
 			{
 				oneLayerStartX = arr[i].getX();
 			}
-			if(layersCount == 1)
+			if (layersCount == 1)
 			{
 				oneLayerLen += arr[i].getX() - oneLayerStartX;
 			}
@@ -403,7 +404,7 @@ int main()
 	int linesCount;
 	cin >> linesCount;
 	Array<Point> arr(linesCount * 2);
-	
+
 	for (size_t i = 0; i < arr.getSize(); ++i)
 	{
 		int x;
@@ -414,6 +415,6 @@ int main()
 	//Point::printPoints(arr);
 	cout << findOneLayerLength(arr);
 	//Point::printPoints(arr);
-	
+
 	return EXIT_SUCCESS;
 }
