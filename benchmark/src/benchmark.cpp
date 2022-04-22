@@ -11,7 +11,7 @@ using namespace std;
 
 void usage() {
   cout << "Usage: \"--help\" for help; \"--count <int>\" count of test, "
-          "required; \"--size\" file size for each test, required\n";
+          "required; \"--strings\" coint of strs for each test, required\n";
 }
 
 string execCommand(const string cmd, int &out_exitStatus) {
@@ -62,11 +62,11 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  int option_symbol, count = 0, size = 0;
+  int option_symbol, count = 0, strings = 0;
 
   struct option options[] = {{"help", no_argument, NULL, 'h'},
                              {"count", required_argument, NULL, 'c'},
-                             {"size", required_argument, NULL, 's'},
+                             {"strings", required_argument, NULL, 's'},
                              {NULL, 0, NULL, 0}};
 
   while ((option_symbol = getopt_long_only(argc, argv, "", options, NULL)) !=
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
       break;
     }
     case 's': {
-      size = stoi(optarg);
+      strings = stoi(optarg);
       break;
     }
     }
@@ -93,12 +93,14 @@ int main(int argc, char *argv[]) {
 
   double medTime = 0;
 
+  cout << "Count of tests: " << count << "; Count of strigns: " << strings
+       << endl
+       << endl;
 
-cout << "Count of tests: " << count << "; File size: " << size << " Mb; Count of numbers: " << size * 1024 * 1024 / sizeof(int) << endl;
   for (int i = 0; i < count; i++) {
     // generate
-    execCommand(string("./generator/generator --path ./data/data.txt --size " +
-                       to_string(size)),
+    execCommand(string("./generator/generator --path ./data/data.txt --count " +
+                       to_string(strings)),
                 exitCode);
     if (exitCode == EXIT_FAILURE) {
 
@@ -108,24 +110,23 @@ cout << "Count of tests: " << count << "; File size: " << size << " Mb; Count of
     double time;
 
     // run
-    if (runTest("./task <./data/data.txt", time) ==
-        EXIT_FAILURE) {
+    if (runTest("./task <./data/data.txt", time) == EXIT_FAILURE) {
       return EXIT_FAILURE;
     }
+
     cout << "Test #" << i + 1 << ". Time passed:" << time
          << " millisec (10^-3 sec)" << endl;
     medTime += time;
-
   }
 
   // Crear dirs
-  cout << execCommand("sh ./scripts/clear.sh", exitCode);
-  if (exitCode == EXIT_FAILURE) {
+  // cout << execCommand("sh ./scripts/clear.sh", exitCode);
+  // if (exitCode == EXIT_FAILURE) {
 
-    return EXIT_FAILURE;
-  }
+  //   return EXIT_FAILURE;
+  // }
 
-  cout << "->Median time: " << medTime / count << " ms" << endl;
+  cout << endl << "->Median time: " << medTime / count << " ms" << endl;
 
   cout << "Done!" << endl;
   return EXIT_SUCCESS;

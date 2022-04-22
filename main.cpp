@@ -13,6 +13,7 @@
 
 using namespace std;
 
+///////////////////////////////////////////Array////////////////////////////////////////////////
 template<typename T>
 class Array
 {
@@ -184,67 +185,11 @@ T& Array<T>::operator[](const size_t index)
 	return arr_[index];
 }
 
-
-//
-//void radixSort(Array<string>& arr, Array<int>& indexArr, int offset, const int alphSize)
-//{
-//	if (indexArr.getSize() <= 1)
-//	{
-//		return;
-//	}
-//
-//	Array<Array<int>> sortedIndexArr(alphSize);
-//	for (size_t i = 0; i < indexArr.getSize(); i++)
-//	{
-//		sortedIndexArr[arr[indexArr[i]][offset]].pushBack(indexArr[i]);
-//	}
-//	++offset;
-//
-//
-//	for (size_t i = 0; i < sortedIndexArr.getSize(); i++)
-//	{
-//		if (i != TERMINATOR)
-//		{
-//			radixSort(arr, sortedIndexArr[i], offset, alphSize);
-//		}
-//	}
-//
-//	int index = 0;
-//	for (int i = 0; i < sortedIndexArr.getSize(); ++i)
-//	{
-//		for (int j = 0; j < sortedIndexArr[i].getSize(); ++j)
-//		{
-//			indexArr[index] = sortedIndexArr[i][j];
-//			++index;
-//		}
-//	}
-//
-//}
-//
-//void sort(Array<string>& arr, const int alphSize)
-//{
-//	Array<int> indexArr(arr.getSize());
-//	for (int i = 0; i < arr.getSize(); i++)
-//	{
-//		indexArr[i] = i;
-//	}
-//
-//	radixSort(arr, indexArr, 0, alphSize);
-//
-//	Array<string> sortedArr(arr.getSize());
-//	for (int i = 0; i < arr.getSize(); i++)
-//	{
-//		sortedArr[i] = arr[indexArr[i]];
-//	}
-//	arr = std::move(sortedArr);
-//}
-
+//////////////////////////////////////////Counting sort/////////////////////////////////////////////////////////////
 template<class T, class TGetKey>
-void CountingSort2(Array<T>& arr, const int startIndex, const int endIndex, TGetKey getKey) {
+void CountingSort(Array<T>& arr, const int startIndex, const int endIndex, TGetKey getKey) {
 	if (endIndex - startIndex + 1 < 2)
 		return;
-	//if (getKey.offset == 1)
-		//cout << "dwadad";
 	int max = getKey(arr[startIndex]);
 	for (int i = startIndex; i <= endIndex; ++i) {
 		if (max < getKey(arr[i])) {
@@ -272,43 +217,47 @@ void CountingSort2(Array<T>& arr, const int startIndex, const int endIndex, TGet
 		arr[startIndex + i] = b[i];
 	}
 
-	getKey.next();
+	getKey.nextDigit();
 	for (int i = 1; i <= max; ++i)
 	{
-		CountingSort2(arr, startIndex + cc[i - 1], startIndex + cc[i] - 1, getKey);
+		CountingSort(arr, startIndex + cc[i - 1], startIndex + cc[i] - 1, getKey);
 	}
 }
 
-
-class CmpStrByte
+/////////////////////////////////////////////MSD for strings comparator class ////////////////////////////////////
+class MSDForString
 {
 public:
-	CmpStrByte() : offset(0) {}
-	~CmpStrByte() = default;
-	void next() { ++offset; }
+	MSDForString() : offset(0) {}
+	~MSDForString() = default;
+	MSDForString(const MSDForString&) = default;
+	MSDForString(MSDForString &&) = default;
+	MSDForString& operator=(const MSDForString&) = default;
+	MSDForString& operator=(MSDForString&&) = default;
+
+	void nextDigit() { ++offset; }
 	int getKey(string& str) { return static_cast<int>(str.length() > offset ? str[offset] : '\0'); }
 	int operator()(string& str) { return getKey(str); }
 
-public:
+private:
 	size_t offset;
 };
 
-
-
 int main()
 {
-	int countOfStrings;
-	cin >> countOfStrings;
+	Array<string> arr;
 
-	Array<string> arr(countOfStrings);
+    while(!cin.eof()){
+        string buf;
+        cin >> buf;
+        if (!buf.empty())
+		{
+			arr.pushBack(buf);
+		}
+    }
 
-	for (int i = 0; i < arr.getSize(); i++)
-	{
-		cin >> arr[i];
-	}
-
-	CmpStrByte comp;
-	CountingSort2(arr, 0, arr.getSize() - 1, comp);
+	MSDForString comparator;
+	CountingSort(arr, 0, arr.getSize() - 1, comparator);
 
 	for (int i = 0; i < arr.getSize(); i++)
 	{

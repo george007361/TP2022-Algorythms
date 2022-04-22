@@ -7,13 +7,13 @@
 
 using namespace std;
 
-#define COUNT_OF_NUBMERS 100//((sizeMB * 1024 * 1024) / sizeof(int))
+#define COUNT_OF_NUBMERS 30 //((sizeMB * 1024 * 1024) / sizeof(int))
 #define A 0
-#define B 10000
+#define B 1000
 
 void usage() {
   cout << "Usage: \"--help\" for help; \"--path <path>\" data file location, "
-          "required; \"--size <int>\" file size MB, required\n";
+          "required; \"--count <int>\" count of strings, required\n";
 }
 
 int main(int argc, char *argv[]) {
@@ -26,11 +26,11 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  int option_symbol, count = 0, size = 0;
+  int option_symbol, count = 0;
 
   struct option options[] = {{"help", no_argument, NULL, 'h'},
                              {"path", required_argument, NULL, 'p'},
-                             {"size", required_argument, NULL, 's'},
+                             {"count", required_argument, NULL, 'c'},
                              {NULL, 0, NULL, 0}};
 
   while ((option_symbol = getopt_long_only(argc, argv, "", options, NULL)) !=
@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
       fname = string(optarg);
       break;
     }
-    case 's': {
-      sizeMB = stoi(optarg);
+    case 'c': {
+      count = stoi(optarg);
       break;
     }
     }
@@ -63,9 +63,12 @@ int main(int argc, char *argv[]) {
   }
 
   srand(time(NULL));
-  dataFile << COUNT_OF_NUBMERS << endl;
-  for (size_t i = 0; i < COUNT_OF_NUBMERS; i++) {
-    dataFile << A + rand() % (B - A + 1) << " ";
+  for (size_t i = 0; i < count; i++) {
+    for (size_t j = 0; j < 1 + rand() % 10; j++)
+    {
+      dataFile << (char)(48 + rand() % (122 - 48));  //A + rand() % (B - A + 1) << " ";
+    }
+    dataFile << endl;
   }
 
   return EXIT_SUCCESS;
