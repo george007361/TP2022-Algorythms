@@ -21,8 +21,8 @@ public:
     ~BinaryTree();
 
     BinaryTree(const BinaryTree&) = delete;
-    BinaryTree(BinaryTree&&);
     BinaryTree& operator =(const BinaryTree&) = delete;
+    BinaryTree(BinaryTree&&);
     BinaryTree& operator = (BinaryTree&&);
 
     void insert(const T& key);
@@ -65,6 +65,32 @@ BinaryTree<T, Comparator>::~BinaryTree()
         delete root;
         root = nullptr;
     }
+}
+
+template<typename T, typename Comparator>
+BinaryTree<T, Comparator>::BinaryTree(BinaryTree&& src)
+{
+    root = src.root;
+    cmp = src.cmp;
+
+    src.root = nullptr;
+}
+
+template<typename T, typename Comparator>
+BinaryTree<T, Comparator>& BinaryTree<T, Comparator>::operator=(BinaryTree&& src)
+{
+    if (this == &src)
+    {
+        return *this;
+    }
+    ~BinaryTree();
+
+    root = src.root;
+    cmp = src.cmp;
+
+    src.root = nullptr;
+
+    return *this;
 }
 
 template<typename T, typename Comparator>
