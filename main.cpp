@@ -10,6 +10,7 @@
 #include <cassert>
 #include <iostream>
 #include <stack>
+#include <vector>
 
 using namespace std;
 
@@ -26,44 +27,47 @@ public:
 	BinaryTree& operator = (BinaryTree&&);
 
 	void insert(const T& key);
-	void postOrderPrint() const;
 
-
-private:
+public:
 	struct BinaryTreeNode
 	{
 		T key;
 		BinaryTreeNode* parent;
 		BinaryTreeNode* left;
 		BinaryTreeNode* right;
+		BinaryTreeNode() = default;
 		BinaryTreeNode(const T& key_, BinaryTreeNode* parent_) : key(key_), left(nullptr), right(nullptr), parent(parent_) {}
-		~BinaryTreeNode()
-		{
-			if (left)
-			{
-				delete left;
-				left = nullptr;
-			}
-			if (right)
-			{
-				delete right;
-				right = nullptr;
-			}
-			parent = nullptr;
-		}
+		~BinaryTreeNode() = default;
 	};
 
 	BinaryTreeNode* root;
 	Comparator cmp;
+
+private:
+	vector<BinaryTreeNode*> postOrder() const;
+	friend ostream& operator <<(ostream& os, const BinaryTree& binTree)
+	{
+		vector<BinaryTreeNode*> result = binTree.postOrder();
+		for (size_t i = 0; i < result.size(); i++)
+		{
+			os << result[i]->key << " ";
+		}
+		return os;
+	}
 };
 
 template<typename T, typename Comparator>
 BinaryTree<T, Comparator>::~BinaryTree()
 {
-	if (root)
+	if (!root)
 	{
-		delete root;
-		root = nullptr;
+		return;
+	}
+
+	vector<BinaryTreeNode*> result = postOrder();
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		delete result[i];
 	}
 }
 
@@ -136,12 +140,11 @@ void BinaryTree<T, Comparator>::insert(const T& key)
 }
 
 template<typename T, typename Comparator>
-void BinaryTree<T, Comparator>::postOrderPrint() const
+vector<typename BinaryTree<T, Comparator>::BinaryTreeNode*>  BinaryTree<T, Comparator>::postOrder() const
 {
-	if (!root)
-	{
-		return;
-	}
+	assert(root);
+
+	vector<BinaryTreeNode*> result;
 
 	BinaryTreeNode* head = root;
 	stack<BinaryTreeNode*> st;
@@ -155,7 +158,7 @@ void BinaryTree<T, Comparator>::postOrderPrint() const
 		if (finishedSubtrees || isLeaf)
 		{
 			st.pop();
-			cout << (next->key) << " ";
+			result.push_back(next);
 			head = next;
 		}
 		else
@@ -170,7 +173,10 @@ void BinaryTree<T, Comparator>::postOrderPrint() const
 			}
 		}
 	}
+
+	return result;
 }
+
 
 
 class IntComparator
@@ -198,7 +204,7 @@ int main()
 		bt.insert(elem);
 	}
 
-	bt.postOrderPrint();
+	cout << bt;
 
 	return EXIT_SUCCESS;
 }
