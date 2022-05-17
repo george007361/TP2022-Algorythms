@@ -73,6 +73,7 @@ protected:
 	Node* _getMin(Node* subtree) const { return subtree->left == nullptr ? subtree : _getMin(subtree->left); };
 	Node* _insert(Node* p, const T& key);
 	Node* _remove(Node* node, const T& key);
+	Node* _getAndRemoveMin(Node* node, Node*& minNode);
 
 private:
 
@@ -182,8 +183,28 @@ typename AVLTree<T, Comparator>::Node* AVLTree<T, Comparator>::_insert(Node* nod
 }
 
 template<typename T, typename Comparator>
-typename AVLTree<T, Comparator>::Node* AVLTree<T, Comparator>::_remove(Node* node, const T& key) {
-	if (node == nullptr)
+typename AVLTree<T, Comparator>::Node* AVLTree<T, Comparator>::_getAndRemoveMin(Node* node, Node*& minNode)
+{
+	if (!node)
+	{
+		return nullptr;
+	}
+	if (node->left)
+	{
+		node->left = _getAndRemoveMin(node->left, minNode);
+	}
+	else
+	{
+		minNode = node;
+		return node->right;
+	}
+	return _updateBalance(node);
+}
+
+template<typename T, typename Comparator>
+typename AVLTree<T, Comparator>::Node* AVLTree<T, Comparator>::_remove(Node* node, const T& key)
+{
+	if (!node)
 	{
 		return nullptr;
 	}
@@ -214,9 +235,11 @@ typename AVLTree<T, Comparator>::Node* AVLTree<T, Comparator>::_remove(Node* nod
 		}
 		else
 		{
-			Node* temp = _getMin(node->right);
-			node->key = temp->key;
-			node->right = _remove(node->right, temp->key);
+			Node* nextMinNode;
+			node->right = _getAndRemoveMin(node->right, nextMinNode);
+			node->key = nextMinNode->key;
+			nextMinNode->left = nextMinNode->right = nullptr;
+			delete nextMinNode;
 		}
 	}
 
