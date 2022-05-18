@@ -27,6 +27,7 @@ public:
 	BinaryTree& operator = (BinaryTree&&);
 
 	void insert(const T& key);
+	void postOrderPrint(ostream& os);
 
 public:
 	struct BinaryTreeNode
@@ -45,15 +46,6 @@ public:
 
 private:
 	vector<BinaryTreeNode*> postOrder() const;
-	friend ostream& operator <<(ostream& os, const BinaryTree& binTree)
-	{
-		vector<BinaryTreeNode*> result = binTree.postOrder();
-		for (size_t i = 0; i < result.size(); i++)
-		{
-			os << result[i]->key << " ";
-		}
-		return os;
-	}
 };
 
 template<typename T, typename Comparator>
@@ -177,6 +169,15 @@ vector<typename BinaryTree<T, Comparator>::BinaryTreeNode*>  BinaryTree<T, Compa
 	return result;
 }
 
+template<typename T, class Comparator>
+void BinaryTree<T, Comparator>::postOrderPrint(ostream& os)
+{
+	vector<BinaryTreeNode*> result = postOrder();
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		os << result[i]->key << " ";
+	}
+}
 
 
 class IntComparator
@@ -204,7 +205,7 @@ int main()
 		bt.insert(elem);
 	}
 
-	cout << bt;
+	bt.postOrderPrint(cout);
 
 	return EXIT_SUCCESS;
 }
