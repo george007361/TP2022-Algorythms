@@ -139,12 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ArcGraph\ArcGraph.cpp" />
     <ClCompile Include="ListGraph\ListGraph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixGraph\MatrixGraph.cpp" />
     <ClCompile Include="SetGraph\SetGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArcGraph\ArcGraph.h" />
     <ClInclude Include="IGraph\IGraph.h" />
     <ClInclude Include="ListGraph\ListGraph.h" />
     <ClInclude Include="MatrixGraph\MatrixGraph.h" />

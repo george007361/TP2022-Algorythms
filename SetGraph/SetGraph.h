@@ -8,7 +8,7 @@
 class SetGraph : public IGraph
 {
 public:
-	SetGraph(const int count);
+	explicit SetGraph(const int count);
 	SetGraph(const IGraph& src);
 	virtual ~SetGraph() override {};
 

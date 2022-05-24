@@ -1,19 +1,18 @@
 #pragma once 
 
+#include <algorithm>
 #include <vector>
 
 class IGraph
 {
 public:
-	IGraph() = default;
-	virtual ~IGraph() {}
+	virtual ~IGraph() = default;
 
-	// Добавление ребра от from к to.
 	virtual void AddEdge(int from, int to) = 0;
-
 	virtual int VerticesCount() const = 0;
-
 	virtual std::vector<int> GetNextVertices(int vertex) const = 0;
 	virtual std::vector<int> GetPrevVertices(int vertex) const = 0;
+
+	bool equal(const IGraph &gr);
 private:
 };

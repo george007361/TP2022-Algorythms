@@ -32,8 +32,26 @@
 #include "SetGraph/SetGraph.h"
 #include "ArcGraph/ArcGraph.h"
 
+ bool testGraph(const int count)
+ {
+     ListGraph listG(count);
+     listG.AddEdge(0, count - 1);
+     for (int i = 1; i < count; i++)
+     {
+         listG.AddEdge(i - 1, i);
+     }
+
+     MatrixGraph matrixG(listG);
+     SetGraph setG(matrixG);
+     ArcGraph arcG(setG);
+
+     arcG.equal(listG);
+
+     return true;
+ }
+
 int main()
 {
-
+    std::cout << testGraph(8);
     return EXIT_SUCCESS;
 }

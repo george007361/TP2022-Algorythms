@@ -7,7 +7,7 @@
 class ArcGraph : public IGraph
 {
 public:
-	ArcGraph(const int count);
+	explicit ArcGraph(const int count);
 	ArcGraph(const IGraph& src);
 	virtual ~ArcGraph() override {};
 

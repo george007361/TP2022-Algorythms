@@ -7,7 +7,7 @@
 class MatrixGraph : public IGraph
 {
 public:
-	MatrixGraph(const int count);
+	explicit MatrixGraph(const int count);
 	MatrixGraph(const IGraph& src);
 	virtual ~MatrixGraph() override {};
 
