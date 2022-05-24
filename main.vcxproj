@@ -139,7 +139,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ListGraph\ListGraph.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MatrixGraph\MatrixGraph.cpp" />
+    <ClCompile Include="SetGraph\SetGraph.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IGraph\IGraph.h" />
+    <ClInclude Include="ListGraph\ListGraph.h" />
+    <ClInclude Include="MatrixGraph\MatrixGraph.h" />
+    <ClInclude Include="SetGraph\SetGraph.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
