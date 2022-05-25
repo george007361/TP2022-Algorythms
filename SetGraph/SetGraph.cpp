@@ -16,7 +16,7 @@ SetGraph::SetGraph(const IGraph& src)
 		std::vector<int> nextVerts = src.GetNextVertices(from);
 		for (int to = 0; to < nextVerts.size(); ++to)
 		{
-			AddEdge(from, to);
+			AddEdge(from, nextVerts[to]);
 		}
 	}
 }
@@ -25,7 +25,7 @@ void SetGraph::AddEdge(int from, int to)
 {
 	assert(from >= 0 && from < vertices.size());
 	assert(to >= 0 && to < vertices.size());
-	vertices[from].insert(from);
+	vertices[from].insert(to);
 	reversedVertices[to].insert(from);
 }
 
@@ -39,11 +39,7 @@ std::vector<int> SetGraph::GetNextVertices(int vertex) const
 	assert(vertex >= 0 && vertex < vertices.size());
 
 	std::vector<int> nextVerticies(vertices[vertex].size());
-
-	for (int i = 0; i < vertices[vertex].size(); i++)
-	{
-		nextVerticies[i] = *vertices[vertex].find(i);
-	}
+    std::copy(vertices[vertex].begin(), vertices[vertex].end(), nextVerticies.begin());
 
 	return nextVerticies;
 }
@@ -53,11 +49,8 @@ std::vector<int> SetGraph::GetPrevVertices(int vertex) const
 	assert(vertex >= 0 && vertex < reversedVertices.size());
 
 	std::vector<int> prevVerticies(reversedVertices[vertex].size());
+    std::copy(reversedVertices[vertex].begin(), reversedVertices[vertex].end(), prevVerticies.begin());
 
-	for (int i = 0; i < reversedVertices[vertex].size(); i++)
-	{
-		prevVerticies[i] = *reversedVertices[vertex].find(i);
-	}
 
 	return prevVerticies;
 }

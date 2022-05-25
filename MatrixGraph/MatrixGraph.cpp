@@ -12,7 +12,7 @@ MatrixGraph::MatrixGraph(const int count)
 MatrixGraph::MatrixGraph(const IGraph& src)
 {
 	adjMatrix.resize(src.VerticesCount());
-	for (std::vector<int> line : adjMatrix)
+	for (auto& line : adjMatrix)
 	{
 		line.assign(adjMatrix.size(), 0);
 	}

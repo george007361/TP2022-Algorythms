@@ -35,19 +35,17 @@
  bool testGraph(const int count)
  {
      ListGraph listG(count);
-     listG.AddEdge(0, count - 1);
      for (int i = 1; i < count; i++)
      {
          listG.AddEdge(i - 1, i);
      }
+     listG.AddEdge(count - 1, 0);
 
      MatrixGraph matrixG(listG);
      SetGraph setG(matrixG);
      ArcGraph arcG(setG);
 
-     arcG.equal(listG);
-
-     return true;
+     return arcG.equal(listG);
  }
 
 int main()
